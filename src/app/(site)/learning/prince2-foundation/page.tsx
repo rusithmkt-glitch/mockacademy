@@ -18,6 +18,7 @@ import { PageMotion } from "@/components/motion/page-motion";
 import { Badge } from "@/components/ui/badge";
 import { ProgressBar } from "@/components/ui/progress";
 import { buttonVariants } from "@/components/ui/button";
+import { connection } from "next/server";
 import { getViewer } from "@/lib/auth/session";
 import { loadCourse } from "@/lib/course-source";
 import {
@@ -38,6 +39,7 @@ const benefitIcons = [ListChecks, Sparkles, CheckCircle2, Clock3];
 export const instant = false;
 
 export default async function CoursePage() {
+  await connection();
   const [course, viewer] = await Promise.all([loadCourse(), getViewer()]);
   const completedSessionIds = await getCompletedSessionIds(viewer);
   const stats = getCourseStats(course);

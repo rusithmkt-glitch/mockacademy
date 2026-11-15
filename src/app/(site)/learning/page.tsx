@@ -22,6 +22,7 @@ import { SectionHeading } from "@/components/section-heading";
 import { Badge } from "@/components/ui/badge";
 import { ProgressBar } from "@/components/ui/progress";
 import { buttonVariants } from "@/components/ui/button";
+import { connection } from "next/server";
 import { getViewer } from "@/lib/auth/session";
 import { loadCourse } from "@/lib/course-source";
 import {
@@ -42,6 +43,7 @@ export const metadata: Metadata = {
 };
 
 export default async function LearningPage() {
+  await connection();
   const [course, viewer] = await Promise.all([loadCourse(), getViewer()]);
   const completedSessionIds = await getCompletedSessionIds(viewer);
   const stats = getCourseStats(course);

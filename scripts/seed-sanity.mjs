@@ -3,6 +3,17 @@ import { prince2Foundation } from "../src/data/prince2-foundation/index.ts";
 import { buildSessionScenes } from "../src/lib/lesson/scenes.ts";
 import { getSessionAssessment } from "../src/lib/lesson/assessment.ts";
 
+const ARTWORK = [
+  ["principles", "Principles"],
+  ["team", "Team"],
+  ["lifecycle", "Lifecycle"],
+  ["business-case", "Business case"],
+  ["planning", "Planning"],
+  ["risk", "Risk"],
+  ["progress", "Progress"],
+  ["products", "Products"],
+];
+
 const projectId =
   process.env.NEXT_PUBLIC_SANITY_PROJECT_ID?.trim() ||
   process.env.SANITY_PROJECT_ID?.trim() ||
@@ -31,17 +42,6 @@ if (!projectId || !dataset) {
 } else {
   await seed();
 }
-
-const ARTWORK = [
-  ["principles", "Principles"],
-  ["team", "Team"],
-  ["lifecycle", "Lifecycle"],
-  ["business-case", "Business case"],
-  ["planning", "Planning"],
-  ["risk", "Risk"],
-  ["progress", "Progress"],
-  ["products", "Products"],
-];
 
 async function seed() {
   const client = createClient({

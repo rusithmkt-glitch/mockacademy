@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { AdminNav } from "@/components/admin/admin-nav";
 import { PageMotion } from "@/components/motion/page-motion";
 import { SiteFooter } from "@/components/site-footer";
@@ -27,6 +28,8 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
+  await connection();
+
   if (!isSupabaseConfigured()) {
     return (
       <>

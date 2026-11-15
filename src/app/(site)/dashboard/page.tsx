@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { DashboardView } from "@/components/dashboard/dashboard-view";
 import { getViewer } from "@/lib/auth/session";
 import { loadCourse } from "@/lib/course-source";
@@ -15,6 +16,7 @@ export const metadata: Metadata = {
 export const instant = false;
 
 export default async function DashboardPage() {
+  await connection();
   const viewer = await getViewer();
   if (!viewer) redirect("/login?next=/dashboard");
 

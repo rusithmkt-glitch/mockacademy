@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { SyllabusSidebar } from "@/components/syllabus/syllabus-sidebar";
 import { getViewer } from "@/lib/auth/session";
 import { loadCourse } from "@/lib/course-source";
@@ -12,6 +13,7 @@ export default async function LessonLayout({
 }: {
   children: React.ReactNode;
 }) {
+  await connection();
   const [course, viewer] = await Promise.all([loadCourse(), getViewer()]);
   const completedIds = await getCompletedSessionIds(viewer);
   const syllabus = toSyllabusCourse(course);

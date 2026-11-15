@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { connection } from "next/server";
 import {
   ArrowUpRight,
   BookOpen,
@@ -17,6 +18,7 @@ export const metadata: Metadata = { title: "Course content" };
 export const instant = false;
 
 export default async function AdminCoursePage() {
+  await connection();
   const [course, published] = await Promise.all([
     loadCourse(),
     isSanityConfigured() ? getPublishedCourse(DEFAULT_COURSE_SLUG) : null,
