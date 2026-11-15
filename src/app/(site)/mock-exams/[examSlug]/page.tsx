@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import { Clock3, FileText, Target } from "lucide-react";
 import { SiteFooter } from "@/components/site-footer";
 import { PageMotion } from "@/components/motion/page-motion";
+import { BackendSetupNotice } from "@/components/setup/backend-setup-notice";
 import { ExamRunner } from "@/components/exams/exam-runner";
 import { Badge } from "@/components/ui/badge";
-import { examSets } from "@/data/mock-exams";
-import { examQuestionBank } from "@/data/exams/questions";
-import { getExamConfig } from "@/data/exams/config";
-import { selectExamQuestions } from "@/lib/exam/selection";
-import { toPresentedQuestion } from "@/lib/exam/presentation";
+import { getViewer } from "@/lib/auth/session";
+import { isSupabaseConfigured } from "@/lib/env";
+import { getExamBySlug, getExamPageState } from "@/lib/exams/queries";
 
 type Params = { examSlug: string };
 
@@ -19,17 +19,13 @@ type Params = { examSlug: string };
 // validation around the dynamic slug.
 export const instant = false;
 
-export function generateStaticParams(): Params[] {
-  return examSets.map((exam) => ({ examSlug: exam.slug }));
-}
-
 export async function generateMetadata({
   params,
 }: {
   params: Promise<Params>;
 }): Promise<Metadata> {
   const { examSlug } = await params;
-  const exam = examSets.find((item) => item.slug === examSlug);
+  const exam = await getExamBySlug(examSlug);
   if (!exam) return {};
   return {
     title: exam.title,
@@ -43,18 +39,41 @@ export default async function MockExamPage({
   params: Promise<Params>;
 }) {
   const { examSlug } = await params;
-  const exam = examSets.find((item) => item.slug === examSlug);
-  const config = exam ? getExamConfig(exam.id) : undefined;
-  if (!exam || !config) notFound();
+  await connection();
 
-  const fixedQuestions =
-    config.selection.mode === "fixed"
-      ? selectExamQuestions(config).map(toPresentedQuestion)
-      : [];
-  const pool =
-    config.selection.mode === "random"
-      ? examQuestionBank.map(toPresentedQuestion)
-      : [];
+  if (!isSupabaseConfigured()) {
+    return (
+      <>
+        <main id="main" className="flex-1">
+          <PageMotion />
+          <div className="shell py-16 lg:py-20">
+            <BackendSetupNotice
+              title="Mock papers are not connected yet"
+              description="Exam papers, attempts and scoring are stored in Supabase. Add your project credentials to .env.local and run the database migrations to make this paper available."
+              envVars={[
+                "NEXT_PUBLIC_SUPABASE_URL",
+                "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+                "SUPABASE_SERVICE_ROLE_KEY",
+              ]}
+              steps={[
+                "Create a Supabase project and copy the API credentials.",
+                "Copy .env.example to .env.local and fill in the Supabase values.",
+                "Apply the SQL migrations in supabase/migrations.",
+                "Seed the exam bank so published papers and questions exist.",
+              ]}
+            />
+          </div>
+        </main>
+        <SiteFooter />
+      </>
+    );
+  }
+
+  const exam = await getExamBySlug(examSlug);
+  if (!exam) notFound();
+
+  const viewer = await getViewer();
+  const initialState = await getExamPageState(exam, viewer);
 
   return (
     <>
@@ -101,7 +120,7 @@ export default async function MockExamPage({
 
             <div className="mt-6 flex flex-wrap items-center gap-2">
               <Badge tone="lavender">{exam.difficulty}</Badge>
-              {exam.featured ? <Badge tone="navy">Start here</Badge> : null}
+              {exam.isFeatured ? <Badge tone="navy">Start here</Badge> : null}
               <Badge tone="outline">PRINCE2 7th edition</Badge>
             </div>
 
@@ -115,25 +134,23 @@ export default async function MockExamPage({
             <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-[0.72rem] text-muted-foreground">
               <span className="inline-flex items-center gap-1.5">
                 <FileText className="size-3.5 text-plum" aria-hidden="true" />
-                {config.questionCount} questions
+                {exam.questionCount} questions
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <Clock3 className="size-3.5 text-plum" aria-hidden="true" />
-                {config.durationMinutes} minutes
+                {exam.durationMinutes} minutes
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <Target className="size-3.5 text-plum" aria-hidden="true" />
-                {config.passMarkPercent}% pass mark
+                {exam.passPercent}% pass mark
               </span>
               <span>Closed book</span>
             </div>
 
             <ExamRunner
-              examId={exam.id}
-              examTitle={exam.title}
-              config={config}
-              fixedQuestions={fixedQuestions}
-              pool={pool}
+              exam={exam}
+              initialState={initialState}
+              isAuthenticated={Boolean(viewer)}
             />
           </div>
         </div>

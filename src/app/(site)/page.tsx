@@ -22,7 +22,6 @@ import { buttonVariants } from "@/components/ui/button";
 import { SectionHeading } from "@/components/section-heading";
 import { ModuleCard } from "@/components/course-card";
 import { ExamArt, HeroArt, LearningArt } from "@/components/illustrations/home-art";
-import { examSets } from "@/data/mock-exams";
 import { course, formatDuration, getCourseStats } from "@/lib/course";
 import { cn } from "@/lib/utils";
 
@@ -35,7 +34,7 @@ const faqs = [
   {
     question: "Do I need an account to use the site?",
     answer:
-      "You can browse the course and the exam catalogue without signing in. Accounts and saved progress are part of the next release, so for now the dashboard shows demonstration data rather than your own results.",
+      "You can browse the course and the exam catalogue without signing in. Create a free account when you want us to save lesson progress and knowledge-check results to your dashboard.",
   },
   {
     question: "Is MockAcademy official PRINCE2 training?",
@@ -224,8 +223,8 @@ export default function HomePage() {
             <dl data-reveal className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {[
                 {
-                  value: `${examSets.length}`,
-                  label: "Free mock papers",
+                  value: "7",
+                  label: "PRINCE2 principles",
                   Icon: FileText,
                   tint: "bg-lavender-soft text-plum",
                 },

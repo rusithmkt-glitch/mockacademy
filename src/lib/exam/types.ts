@@ -1,9 +1,4 @@
-export type ExamTopic =
-  | "Principles"
-  | "People"
-  | "Practices"
-  | "Processes"
-  | "Project context";
+export type ExamTopic = string;
 
 export interface ExamOption {
   id: string;

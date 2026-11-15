@@ -12,7 +12,7 @@ export const riskModule: CourseModule = {
   scene: "risk",
   sessions: [
     {
-      id: "m5-s1",
+      id: "risk-and-progress/risk",
       slug: "risk",
       title: "Risk",
       summary:
@@ -74,7 +74,7 @@ export const riskModule: CourseModule = {
       },
     },
     {
-      id: "m5-s2",
+      id: "risk-and-progress/issues-and-change",
       slug: "issues-and-change",
       title: "Issues and change",
       summary:
@@ -124,7 +124,7 @@ export const riskModule: CourseModule = {
       },
     },
     {
-      id: "m5-s3",
+      id: "risk-and-progress/progress",
       slug: "progress",
       title: "Progress",
       summary:
@@ -173,7 +173,7 @@ export const riskModule: CourseModule = {
       },
     },
     {
-      id: "m5-s4",
+      id: "risk-and-progress/manage-by-exception",
       slug: "manage-by-exception",
       title: "Manage by exception",
       summary:

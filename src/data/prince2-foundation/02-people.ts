@@ -12,7 +12,7 @@ export const peopleModule: CourseModule = {
   scene: "people",
   sessions: [
     {
-      id: "m2-s1",
+      id: "people/leading-successful-teams",
       slug: "leading-successful-teams",
       title: "Leading successful teams",
       summary:
@@ -75,7 +75,7 @@ export const peopleModule: CourseModule = {
       },
     },
     {
-      id: "m2-s2",
+      id: "people/stakeholders-and-communication",
       slug: "stakeholders-and-communication",
       title: "Stakeholders and communication",
       summary:
@@ -130,7 +130,7 @@ export const peopleModule: CourseModule = {
       },
     },
     {
-      id: "m2-s3",
+      id: "people/culture-and-change",
       slug: "culture-and-change",
       title: "Culture and change",
       summary:

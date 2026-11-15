@@ -13,18 +13,19 @@ import {
 import type { SyllabusCourse } from "@/data/types";
 import { ProgressBar } from "@/components/ui/progress";
 import { getProgressPercent } from "@/lib/course";
-import { useDemoStore } from "@/lib/progress/provider";
 import { cn } from "@/lib/utils";
 
 function SyllabusContents({
   syllabus,
   completedIds,
   totalSessions,
+  signedIn,
   onNavigate,
 }: {
   syllabus: SyllabusCourse;
   completedIds: string[];
   totalSessions: number;
+  signedIn: boolean;
   onNavigate?: () => void;
 }) {  const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
@@ -188,7 +189,9 @@ function SyllabusContents({
 
       <div className="border-t border-border px-5 py-3">
         <p className="text-[0.6rem] leading-relaxed text-muted-foreground">
-          Demonstration progress. Accounts and saved progress arrive soon.
+          {signedIn
+            ? "Progress is saved to your account when a knowledge check is passed."
+            : "Sign in to save your progress across devices."}
         </p>
       </div>
     </div>
@@ -198,13 +201,16 @@ function SyllabusContents({
 export function SyllabusSidebar({
   syllabus,
   totalSessions,
+  completedIds: savedIds,
+  signedIn,
 }: {
   syllabus: SyllabusCourse;
   totalSessions: number;
+  completedIds: string[];
+  signedIn: boolean;
 }) {
   const pathname = usePathname();
-  const { completedSessionIds } = useDemoStore();
-  const completedIds = completedSessionIds.filter((id) =>
+  const completedIds = savedIds.filter((id) =>
     syllabus.modules.some((module) =>
       module.sessions.some((session) => session.id === id),
     ),
@@ -266,6 +272,7 @@ export function SyllabusSidebar({
             syllabus={syllabus}
             completedIds={completedIds}
             totalSessions={totalSessions}
+            signedIn={signedIn}
           />
         </div>
       </aside>
@@ -307,6 +314,7 @@ export function SyllabusSidebar({
             syllabus={syllabus}
             completedIds={completedIds}
             totalSessions={totalSessions}
+            signedIn={signedIn}
             onNavigate={() => setOpen(false)}
           />
         </div>

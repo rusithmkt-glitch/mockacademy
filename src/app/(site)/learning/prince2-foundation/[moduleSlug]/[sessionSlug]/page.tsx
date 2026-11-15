@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import { BookOpen, Clock3, ListChecks } from "lucide-react";
 import { PageMotion } from "@/components/motion/page-motion";
 import { KeyPoints, LessonSections } from "@/components/lesson/lesson-content";
@@ -8,28 +9,17 @@ import { LessonNavigation } from "@/components/lesson/lesson-navigation";
 import { LessonProgress } from "@/components/learning/lesson-progress";
 import { ScenePlayer } from "@/components/learning/scene-player";
 import { KnowledgeCheck } from "@/components/learning/knowledge-check";
-import {
-  course,
-  getAllSessions,
-  getAdjacentSessions,
-  getSession,
-} from "@/lib/course";
+import { getViewer } from "@/lib/auth/session";
+import { loadCourse } from "@/lib/course-source";
+import { getAllSessionRefs } from "@/lib/course";
 import { getSessionAssessment } from "@/lib/lesson/assessment";
 import { buildSessionScenes } from "@/lib/lesson/scenes";
+import { getCompletedSessionIds } from "@/lib/progress/queries";
 
 type Params = {
   moduleSlug: string;
   sessionSlug: string;
 };
-
-export function generateStaticParams(): Params[] {
-  return course.modules.flatMap((module) =>
-    module.sessions.map((session) => ({
-      moduleSlug: module.slug,
-      sessionSlug: session.slug,
-    })),
-  );
-}
 
 export async function generateMetadata({
   params,
@@ -37,11 +27,17 @@ export async function generateMetadata({
   params: Promise<Params>;
 }): Promise<Metadata> {
   const { moduleSlug, sessionSlug } = await params;
-  const ref = getSession(moduleSlug, sessionSlug);
-  if (!ref) return {};
+  const course = await loadCourse();
+  const courseModule = course.modules.find(
+    (module) => module.slug === moduleSlug,
+  );
+  const session = courseModule?.sessions.find(
+    (item) => item.slug === sessionSlug,
+  );
+  if (!courseModule || !session) return {};
   return {
-    title: `${ref.session.title} · ${ref.module.shortTitle}`,
-    description: ref.session.summary,
+    title: `${session.title} · ${courseModule.shortTitle}`,
+    description: session.summary,
   };
 }
 
@@ -54,20 +50,31 @@ export default async function LessonPage({
   params: Promise<Params>;
 }) {
   const { moduleSlug, sessionSlug } = await params;
-  const ref = getSession(moduleSlug, sessionSlug);
-  if (!ref) notFound();
+  await connection();
 
-  const { module, session } = ref;
-  const { previous, next, index, total } = getAdjacentSessions(
-    module.slug,
-    session.slug,
+  const [course, viewer] = await Promise.all([loadCourse(), getViewer()]);
+  const refs = getAllSessionRefs(course);
+  const index = refs.findIndex(
+    (ref) => ref.module.slug === moduleSlug && ref.session.slug === sessionSlug,
   );
+  if (index === -1) notFound();
+
+  const { module, session } = refs[index];
+  const previous = index > 0 ? refs[index - 1] : null;
+  const next = index < refs.length - 1 ? refs[index + 1] : null;
   const sessionNumber = index + 1;
-  const scenes = buildSessionScenes(session, module);
+  const scenes =
+    session.scenes && session.scenes.length > 0
+      ? session.scenes
+      : buildSessionScenes(session, module);
   const assessment = getSessionAssessment(session, module.shortTitle);
   const nextHref = next
     ? `/learning/prince2-foundation/${next.module.slug}/${next.session.slug}`
     : null;
+
+  const completedIds = await getCompletedSessionIds(viewer);
+  const signedIn = Boolean(viewer);
+  const lessonPath = `/learning/prince2-foundation/${module.slug}/${session.slug}`;
 
   return (
     <main id="main" className="min-w-0">
@@ -104,7 +111,7 @@ export default async function LessonPage({
             Module {module.order}
           </span>
           <span>
-            Session {sessionNumber} of {total}
+            Session {sessionNumber} of {refs.length}
           </span>
           <span className="inline-flex items-center gap-1">
             <Clock3 className="size-3" aria-hidden="true" />
@@ -123,7 +130,11 @@ export default async function LessonPage({
           {session.summary}
         </p>
 
-        <LessonProgress sessionIds={getAllSessions().map((item) => item.id)} />
+        <LessonProgress
+          sessionIds={refs.map((ref) => ref.session.id)}
+          completedSessionIds={completedIds}
+          signedIn={signedIn}
+        />
 
         <ScenePlayer scenes={scenes} />
 
@@ -163,6 +174,9 @@ export default async function LessonPage({
           questions={assessment}
           nextHref={nextHref}
           nextTitle={next?.session.title}
+          signedIn={signedIn}
+          signInHref={`/login?next=${encodeURIComponent(lessonPath)}`}
+          completed={completedIds.includes(session.id)}
         />
 
         <LessonNavigation previous={previous} next={next} />

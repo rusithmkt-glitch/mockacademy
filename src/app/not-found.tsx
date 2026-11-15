@@ -1,15 +1,18 @@
 import Link from "next/link";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { SceneIllustration } from "@/components/illustrations/scene-illustration";
+import { SiteHeader } from "@/components/site-header";
 import { PageMotion } from "@/components/motion/page-motion";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 
 export default function NotFound() {
   return (
-    <main id="main" className="flex-1">
-      <PageMotion />
-      <div className="shell flex min-h-[calc(100dvh-4rem)] items-center py-16">
+    <>
+      <SiteHeader />
+      <main id="main" className="flex-1">
+        <PageMotion />
+        <div className="shell flex min-h-[calc(100dvh-4rem)] items-center py-16">
         <div className="grid w-full items-center gap-12 lg:grid-cols-[1.1fr_1fr]">
           <div className="max-w-xl">
             <Badge tone="sand">404 — Page not found</Badge>
@@ -53,6 +56,7 @@ export default function NotFound() {
           />
         </div>
       </div>
-    </main>
+      </main>
+    </>
   );
 }

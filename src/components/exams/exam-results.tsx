@@ -9,6 +9,7 @@ import {
   Flag,
   LayoutDashboard,
   RotateCcw,
+  ShieldCheck,
   Target,
   X,
   XCircle,
@@ -31,6 +32,7 @@ export function ExamResults({
   mode,
   questions,
   review,
+  reviewAvailable = true,
   onRetake,
 }: {
   examTitle: string;
@@ -39,6 +41,7 @@ export function ExamResults({
   mode: AttemptMode;
   questions: PresentedQuestion[];
   review: Record<string, ExamFeedback>;
+  reviewAvailable?: boolean;
   onRetake: () => void;
 }) {
   const responseById = new Map(
@@ -96,7 +99,9 @@ export function ExamResults({
               {result.percent}% overall
               {result.passed
                 ? " — this sits above the pass mark."
-                : " — review the explanations below before your next attempt."}
+                : reviewAvailable
+                  ? " — review the explanations below before your next attempt."
+                  : " — review the topic breakdown before your next attempt."}
             </p>
 
             <dl className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -269,6 +274,7 @@ export function ExamResults({
         </aside>
       </div>
 
+      {reviewAvailable ? (
       <section
         aria-labelledby="answer-review-title"
         className="rounded-3xl border border-border bg-card p-5 shadow-soft sm:p-7"
@@ -376,10 +382,36 @@ export function ExamResults({
           })}
         </div>
       </section>
+      ) : (
+        <section
+          aria-labelledby="answer-review-withheld-title"
+          className="rounded-3xl border border-border bg-card p-5 shadow-soft sm:p-7"
+        >
+          <div className="flex items-start gap-3">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-accent text-primary">
+              <ShieldCheck className="size-4" aria-hidden="true" />
+            </span>
+            <div>
+              <h2
+                id="answer-review-withheld-title"
+                className="font-heading text-[1.1rem] text-foreground"
+              >
+                Answer review withheld
+              </h2>
+              <p className="mt-1.5 max-w-2xl text-[0.8rem] leading-relaxed text-muted-foreground">
+                This was a formal simulation, so explanations are not shown for
+                this attempt. Your score and topic breakdown above are final and
+                stored on your account. Your next study attempt will include a
+                full review.
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
 
       <p className="text-[0.65rem] leading-relaxed text-muted-foreground">
-        This attempt is stored in this browser for the demo. Production-safe
-        scoring, attempt limits and account history arrive in Phase 3.
+        This attempt is saved to your account. Your score was calculated on the
+        server from your submitted answers.
       </p>
     </div>
   );

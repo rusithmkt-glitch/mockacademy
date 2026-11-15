@@ -12,7 +12,7 @@ export const planningModule: CourseModule = {
   scene: "planning",
   sessions: [
     {
-      id: "m4-s1",
+      id: "planning-and-quality/organisation",
       slug: "organisation",
       title: "Organisation",
       summary:
@@ -68,7 +68,7 @@ export const planningModule: CourseModule = {
       },
     },
     {
-      id: "m4-s2",
+      id: "planning-and-quality/plans",
       slug: "plans",
       title: "Plans",
       summary:
@@ -130,7 +130,7 @@ export const planningModule: CourseModule = {
       },
     },
     {
-      id: "m4-s3",
+      id: "planning-and-quality/quality",
       slug: "quality",
       title: "Quality",
       summary:
@@ -184,7 +184,7 @@ export const planningModule: CourseModule = {
       },
     },
     {
-      id: "m4-s4",
+      id: "planning-and-quality/products-and-descriptions",
       slug: "products-and-descriptions",
       title: "Products and descriptions",
       summary:

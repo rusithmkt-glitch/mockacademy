@@ -12,7 +12,7 @@ export const foundationsModule: CourseModule = {
   scene: "foundations",
   sessions: [
     {
-      id: "m1-s1",
+      id: "foundations/what-is-prince2",
       slug: "what-is-prince2",
       title: "What is PRINCE2?",
       summary:
@@ -122,7 +122,7 @@ export const foundationsModule: CourseModule = {
       ],
     },
     {
-      id: "m1-s2",
+      id: "foundations/seven-principles",
       slug: "seven-principles",
       title: "The seven principles",
       summary:
@@ -185,7 +185,7 @@ export const foundationsModule: CourseModule = {
       },
     },
     {
-      id: "m1-s3",
+      id: "foundations/projects-in-context",
       slug: "projects-in-context",
       title: "Projects in context",
       summary:
@@ -242,7 +242,7 @@ export const foundationsModule: CourseModule = {
       },
     },
     {
-      id: "m1-s4",
+      id: "foundations/tailoring-prince2",
       slug: "tailoring-prince2",
       title: "Tailoring PRINCE2",
       summary:

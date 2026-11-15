@@ -78,6 +78,8 @@ export interface Session {
   knowledgeCheck: KnowledgeCheck;
   /** Optional richer assessment; falls back to the single knowledge check. */
   assessment?: CheckQuestion[];
+  /** CMS-authored scenes; falls back to scenes generated from the lesson body. */
+  scenes?: LessonScene[];
 }
 
 export interface CourseModule {

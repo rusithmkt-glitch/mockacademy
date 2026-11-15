@@ -24,15 +24,15 @@ export function getRecommendedLessons(
 
   for (const topic of [...topics].sort((a, b) => a.percent - b.percent)) {
     if (topic.percent >= 100) continue;
-    const moduleId = topicModuleMap[topic.topic];
-    if (!moduleId || seen.has(moduleId)) continue;
-    const courseModule = course.modules.find((item) => item.id === moduleId);
+    const moduleSlug = topicModuleMap[topic.topic];
+    if (!moduleSlug || seen.has(moduleSlug)) continue;
+    const courseModule = course.modules.find((item) => item.slug === moduleSlug);
     const session = courseModule?.sessions[0];
     if (!courseModule || !session) continue;
 
-    seen.add(moduleId);
+    seen.add(moduleSlug);
     recommendations.push({
-      moduleId,
+      moduleId: courseModule.slug,
       moduleTitle: courseModule.title,
       topic: topic.topic,
       percent: topic.percent,

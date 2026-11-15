@@ -12,16 +12,21 @@ import { SiteFooter } from "@/components/site-footer";
 import { PageMotion } from "@/components/motion/page-motion";
 import { CatalogueIntro } from "@/components/catalogue/catalogue-intro";
 import { ExamLibrary } from "@/components/catalogue/exam-library";
+import { BackendSetupNotice } from "@/components/setup/backend-setup-notice";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
-import { examBlueprint, examSets } from "@/data/mock-exams";
+import { examBlueprint } from "@/data/mock-exams";
 import { getExamConfig } from "@/data/exams/config";
+import { isSupabaseConfigured } from "@/lib/env";
+import { listPublishedExams } from "@/lib/exams/queries";
 
 export const metadata: Metadata = {
   title: "Free PRINCE2 Foundation mock exams",
   description:
     "Five free PRINCE2 Foundation mock papers: full 60-question simulations and focused practice sets. Built around the official exam format.",
 };
+
+export const instant = false;
 
 const defaultConfig = getExamConfig("mock-a");
 
@@ -50,7 +55,10 @@ const tips = [
   },
 ];
 
-export default function MockExamsPage() {
+export default async function MockExamsPage() {
+  const configured = isSupabaseConfigured();
+  const exams = configured ? await listPublishedExams() : [];
+
   return (
     <>
       <main id="main" className="flex-1">
@@ -88,7 +96,11 @@ export default function MockExamsPage() {
               <CatalogueIntro
                 headingLevel="h1"
                 pill="Free exam library"
-                title="Five papers. One clear goal: exam readiness."
+                title={
+                  exams.length > 0
+                    ? `${exams.length} ${exams.length === 1 ? "paper" : "papers"}. One clear goal: exam readiness.`
+                    : "Free mock papers. One clear goal: exam readiness."
+                }
                 description="Full simulations for exam technique, focused sets for targeted revision. Every paper is free and built around the PRINCE2 Foundation syllabus."
               >
                 <div className="mt-6 flex flex-wrap justify-center gap-2">
@@ -102,7 +114,37 @@ export default function MockExamsPage() {
               </CatalogueIntro>
             </div>
 
-            <ExamLibrary exams={examSets} />
+            {!configured ? (
+              <div className="mt-9">
+                <BackendSetupNotice
+                  title="The exam library is not connected yet"
+                  description="Papers, questions and attempts are served from Supabase. Add your project credentials and apply the migrations to publish the free papers."
+                  envVars={[
+                    "NEXT_PUBLIC_SUPABASE_URL",
+                    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+                    "SUPABASE_SERVICE_ROLE_KEY",
+                  ]}
+                  steps={[
+                    "Create a Supabase project and copy the API credentials.",
+                    "Copy .env.example to .env.local and fill in the Supabase values.",
+                    "Apply the SQL migrations in supabase/migrations.",
+                    "Seed the exam bank so published papers and questions exist.",
+                  ]}
+                />
+              </div>
+            ) : exams.length === 0 ? (
+              <div className="mt-9 rounded-3xl border border-border bg-card p-8 text-center shadow-soft">
+                <p className="font-heading text-lg text-foreground">
+                  No papers are published yet
+                </p>
+                <p className="mx-auto mt-2 max-w-md text-pretty text-[0.82rem] leading-relaxed text-muted-foreground">
+                  Published mock papers will appear here as soon as they are
+                  added in Supabase. Check back shortly.
+                </p>
+              </div>
+            ) : (
+              <ExamLibrary exams={exams} />
+            )}
           </div>
         </section>
 

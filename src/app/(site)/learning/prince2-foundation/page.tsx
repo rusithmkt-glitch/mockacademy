@@ -18,13 +18,14 @@ import { PageMotion } from "@/components/motion/page-motion";
 import { Badge } from "@/components/ui/badge";
 import { ProgressBar } from "@/components/ui/progress";
 import { buttonVariants } from "@/components/ui/button";
-import { student } from "@/data/student";
+import { getViewer } from "@/lib/auth/session";
+import { loadCourse } from "@/lib/course-source";
 import {
-  course,
   formatDuration,
   getCourseStats,
   getModuleDuration,
 } from "@/lib/course";
+import { getCompletedSessionIds } from "@/lib/progress/queries";
 
 export const metadata: Metadata = {
   title: "PRINCE2 Foundation course",
@@ -34,9 +35,13 @@ export const metadata: Metadata = {
 
 const benefitIcons = [ListChecks, Sparkles, CheckCircle2, Clock3];
 
-export default function CoursePage() {
+export const instant = false;
+
+export default async function CoursePage() {
+  const [course, viewer] = await Promise.all([loadCourse(), getViewer()]);
+  const completedSessionIds = await getCompletedSessionIds(viewer);
   const stats = getCourseStats(course);
-  const completed = new Set(student.completedSessionIds);
+  const completed = new Set(completedSessionIds);
   const firstModule = course.modules[0];
   const firstSession = firstModule.sessions[0];
   const longestModule = Math.max(
@@ -244,7 +249,7 @@ export default function CoursePage() {
               <SectionHeading
                 eyebrow="Complete syllabus"
                 title="Every module and session."
-                description="Open a module to see its sessions. Lesson progress below is demonstration data until accounts launch."
+                description="Open a module to see its sessions. Progress is saved when you pass each knowledge check."
               />
               <span className="rounded-full border border-border bg-background px-3 py-1.5 text-[0.7rem] text-muted-foreground">
                 {stats.moduleCount} modules · {stats.sessionCount} sessions

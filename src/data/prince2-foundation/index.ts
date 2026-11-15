@@ -1,10 +1,10 @@
 import type { Course } from "../types";
-import { foundationsModule } from "./01-foundations";
-import { peopleModule } from "./02-people";
-import { planningModule } from "./04-planning";
-import { deliveryModule } from "./06-delivery";
-import { riskModule } from "./05-risk";
-import { startingModule } from "./03-starting";
+import { foundationsModule } from "./01-foundations.ts";
+import { peopleModule } from "./02-people.ts";
+import { planningModule } from "./04-planning.ts";
+import { deliveryModule } from "./06-delivery.ts";
+import { riskModule } from "./05-risk.ts";
+import { startingModule } from "./03-starting.ts";
 
 export const prince2Foundation: Course = {
   id: "prince2-foundation",

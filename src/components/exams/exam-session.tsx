@@ -4,14 +4,12 @@ import { useState } from "react";
 import {
   ArrowRight,
   Check,
-  CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  CircleAlert,
   Clock3,
   Flag,
   Send,
-  X,
-  XCircle,
 } from "lucide-react";
 import type { AttemptMode } from "@/lib/exam/types";
 import type { PresentedQuestion } from "@/lib/exam/presentation";
@@ -41,7 +39,8 @@ export function ExamSession({
   responses,
   remaining,
   lowTime,
-  feedback,
+  saveError,
+  submitting = false,
   onSelect,
   onToggleFlag,
   onNavigate,
@@ -55,7 +54,8 @@ export function ExamSession({
   responses: ResponseMap;
   remaining: number;
   lowTime: boolean;
-  feedback?: Record<string, ExamFeedback>;
+  saveError?: string | null;
+  submitting?: boolean;
   onSelect: (optionId: string) => void;
   onToggleFlag: () => void;
   onNavigate: (index: number) => void;
@@ -72,8 +72,6 @@ export function ExamSession({
   const current = responses[question.id];
   const selectedId = current?.selectedOptionIds[0];
   const isFlagged = current?.flagged ?? false;
-  const questionFeedback = feedback?.[question.id];
-  const showFeedback = mode === "study" && Boolean(selectedId && questionFeedback);
 
   return (
     <div className="mt-6">
@@ -107,9 +105,10 @@ export function ExamSession({
               type="button"
               variant="navy"
               onClick={() => setConfirming(true)}
+              disabled={submitting}
             >
               <Send className="size-3.5" aria-hidden="true" />
-              Submit
+              {submitting ? "Submitting…" : "Submit"}
             </Button>
           </div>
         </div>
@@ -134,8 +133,8 @@ export function ExamSession({
               >
                 Keep working
               </Button>
-              <Button type="button" variant="navy" size="sm" onClick={onSubmit}>
-                Submit paper
+              <Button type="button" variant="navy" size="sm" onClick={onSubmit} disabled={submitting}>
+                {submitting ? "Submitting…" : "Submit paper"}
               </Button>
             </div>
           </div>
@@ -148,6 +147,16 @@ export function ExamSession({
           </p>
         ) : null}
       </div>
+
+      {saveError ? (
+        <div
+          role="alert"
+          className="mt-3 flex items-start gap-2.5 rounded-xl border border-destructive/25 bg-destructive/5 p-3.5 text-[0.75rem] leading-relaxed text-destructive"
+        >
+          <CircleAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+          <p>{saveError}</p>
+        </div>
+      ) : null}
 
       <div className="grid gap-5 pt-5 lg:grid-cols-[minmax(0,1fr)_19rem]">
         <section
@@ -196,24 +205,15 @@ export function ExamSession({
             <div className="space-y-2">
               {question.options.map((option, optionIndex) => {
                 const isSelected = selectedId === option.id;
-                const isCorrectOption =
-                  showFeedback &&
-                  questionFeedback?.correctOptionId === option.id;
-                const isWrongSelection =
-                  showFeedback && isSelected && !isCorrectOption;
 
                 return (
                   <label
                     key={option.id}
                     className={cn(
                       "flex cursor-pointer items-center gap-3 rounded-xl border px-3.5 py-3 transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring/60",
-                      isCorrectOption
-                        ? "border-mint bg-mint-soft"
-                        : isWrongSelection
-                          ? "border-destructive/40 bg-destructive/5"
-                          : isSelected
-                            ? "border-primary/40 bg-accent"
-                            : "border-border/70 bg-background hover:border-primary/25 hover:bg-accent/40",
+                      isSelected
+                        ? "border-primary/40 bg-accent"
+                        : "border-border/70 bg-background hover:border-primary/25 hover:bg-accent/40",
                     )}
                   >
                     <input
@@ -227,19 +227,13 @@ export function ExamSession({
                     <span
                       className={cn(
                         "flex size-6 shrink-0 items-center justify-center rounded-full border text-[0.65rem] font-semibold",
-                        isCorrectOption
-                          ? "border-mint bg-mint text-navy"
-                          : isWrongSelection
-                            ? "border-destructive bg-destructive text-white"
-                            : isSelected
-                              ? "border-primary bg-primary text-primary-foreground"
-                              : "border-border bg-background text-muted-foreground",
+                        isSelected
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border bg-background text-muted-foreground",
                       )}
                     >
-                      {isCorrectOption ? (
+                      {isSelected ? (
                         <Check className="size-3.5" strokeWidth={3} aria-hidden="true" />
-                      ) : isWrongSelection ? (
-                        <X className="size-3.5" strokeWidth={3} aria-hidden="true" />
                       ) : (
                         String.fromCharCode(65 + optionIndex)
                       )}
@@ -252,50 +246,6 @@ export function ExamSession({
               })}
             </div>
           </fieldset>
-
-          {showFeedback && questionFeedback ? (
-            <div
-              className={cn(
-                "mt-4 flex items-start gap-3 rounded-xl border p-4",
-                selectedId === questionFeedback.correctOptionId
-                  ? "border-mint/60 bg-mint-soft"
-                  : "border-destructive/20 bg-destructive/5",
-              )}
-              aria-live="polite"
-            >
-              <span
-                className={cn(
-                  "mt-0.5 shrink-0",
-                  selectedId === questionFeedback.correctOptionId
-                    ? "text-navy"
-                    : "text-destructive",
-                )}
-              >
-                {selectedId === questionFeedback.correctOptionId ? (
-                  <CheckCircle2 className="size-4" aria-hidden="true" />
-                ) : (
-                  <XCircle className="size-4" aria-hidden="true" />
-                )}
-              </span>
-              <div>
-                <p
-                  className={cn(
-                    "text-[0.82rem] font-semibold",
-                    selectedId === questionFeedback.correctOptionId
-                      ? "text-navy"
-                      : "text-destructive",
-                  )}
-                >
-                  {selectedId === questionFeedback.correctOptionId
-                    ? "Correct"
-                    : "Not quite"}
-                </p>
-                <p className="mt-1 text-pretty text-[0.8rem] leading-relaxed text-foreground/70">
-                  {questionFeedback.explanation}
-                </p>
-              </div>
-            </div>
-          ) : null}
 
           <div className="mt-6 flex items-center justify-between gap-3 border-t border-border pt-4">
             <Button
@@ -317,6 +267,7 @@ export function ExamSession({
                 variant="navy"
                 size="cta"
                 onClick={() => setConfirming(true)}
+                disabled={submitting}
               >
                 Review &amp; submit
                 <ArrowRight className="size-4" aria-hidden="true" />
@@ -424,6 +375,7 @@ export function ExamSession({
               size="cta"
               className="mt-4 w-full"
               onClick={() => setConfirming(true)}
+              disabled={submitting}
             >
               <Send className="size-4" aria-hidden="true" />
               Submit paper
@@ -431,8 +383,8 @@ export function ExamSession({
           </div>
           <p className="mt-2 px-1 text-[0.62rem] leading-relaxed text-muted-foreground">
             {mode === "study"
-              ? "Study mode — feedback appears as you answer each question."
-              : "Formal mode — answers are revealed after you submit."}
+              ? "Study attempt — full answer review unlocks after you submit."
+              : "Formal mode — score and topic breakdown after you submit; explanations withheld."}
           </p>
         </aside>
       </div>

@@ -1,9 +1,5 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Montserrat } from "next/font/google";
-import { SiteHeader } from "@/components/site-header";
-import { ScrollEffects } from "@/components/motion/scroll-effects";
-import { SmoothScroll } from "@/components/motion/smooth-scroll";
-import { DemoDataProvider } from "@/lib/progress/provider";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -51,17 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${montserrat.variable} ${geistMono.variable} h-full`}
     >
       <body className="flex min-h-full flex-col overflow-x-clip bg-background">
-        <div className="scroll-progress" data-scroll-progress aria-hidden="true" />
-        <SmoothScroll />
-        <ScrollEffects />
-        <a
-          href="#main"
-          className="sr-only z-[60] rounded-full bg-navy px-4 py-2 text-sm font-medium text-white focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
-        >
-          Skip to content
-        </a>
-        <SiteHeader />
-        <DemoDataProvider>{children}</DemoDataProvider>
+        {children}
       </body>
     </html>
   );

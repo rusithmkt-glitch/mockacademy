@@ -22,15 +22,18 @@ import { SectionHeading } from "@/components/section-heading";
 import { Badge } from "@/components/ui/badge";
 import { ProgressBar } from "@/components/ui/progress";
 import { buttonVariants } from "@/components/ui/button";
-import { student } from "@/data/student";
+import { getViewer } from "@/lib/auth/session";
+import { loadCourse } from "@/lib/course-source";
 import {
-  course,
   formatDuration,
   getCourseStats,
   getModuleDuration,
   getProgressPercent,
   getResumeSession,
 } from "@/lib/course";
+import { getCompletedSessionIds } from "@/lib/progress/queries";
+
+export const instant = false;
 
 export const metadata: Metadata = {
   title: "Free PRINCE2 Foundation learning",
@@ -38,16 +41,19 @@ export const metadata: Metadata = {
     "Study the complete PRINCE2 Foundation syllabus with 6 modules, 23 illustrated lessons and knowledge checks. Free, structured and designed for UK learners.",
 };
 
-export default function LearningPage() {
+export default async function LearningPage() {
+  const [course, viewer] = await Promise.all([loadCourse(), getViewer()]);
+  const completedSessionIds = await getCompletedSessionIds(viewer);
   const stats = getCourseStats(course);
-  const completed = student.completedSessionIds.length;
+  const completed = completedSessionIds.length;
   const percent = getProgressPercent(completed, stats.sessionCount);
-  const resume = getResumeSession(student.completedSessionIds);
+  const resume = getResumeSession(completedSessionIds);
   const resumeHref = `/learning/prince2-foundation/${resume.module.slug}/${resume.session.slug}`;
+  const signedIn = Boolean(viewer);
 
   const moduleItems: ModuleCatalogueItem[] = course.modules.map((module) => {
     const completedSessions = module.sessions.filter((session) =>
-      student.completedSessionIds.includes(session.id),
+      completedSessionIds.includes(session.id),
     ).length;
 
     return {
@@ -103,7 +109,7 @@ export default function LearningPage() {
 
               <div className="mt-7 flex flex-wrap gap-2">
                 <Badge tone="pink">Completely free</Badge>
-                <Badge tone="outline">23 knowledge checks</Badge>
+                <Badge tone="outline">{stats.sessionCount} knowledge checks</Badge>
                 <Badge tone="outline">PRINCE2 7th edition</Badge>
               </div>
 
@@ -221,10 +227,12 @@ export default function LearningPage() {
                   <ProgressBar
                     value={percent}
                     className="mt-2 h-1.5 bg-white/15"
-                    label="Demonstration course progress"
+                    label="Course progress"
                   />
                   <p className="mt-2 text-[0.68rem] text-white/40">
-                    {completed} of {stats.sessionCount} sessions · demonstration data
+                    {signedIn
+                      ? `${completed} of ${stats.sessionCount} sessions complete`
+                      : "Sign in to save your progress"}
                   </p>
                 </div>
 

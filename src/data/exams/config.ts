@@ -95,10 +95,10 @@ export const examTopics: ExamTopic[] = [
   "Project context",
 ];
 
-export const topicModuleMap: Record<ExamTopic, string> = {
-  Principles: "m1",
-  People: "m2",
-  Practices: "m4",
-  Processes: "m6",
-  "Project context": "m3",
+export const topicModuleMap: Record<string, string> = {
+  Principles: "foundations",
+  People: "people",
+  Practices: "planning-and-quality",
+  Processes: "delivery-and-closure",
+  "Project context": "starting-a-project",
 };

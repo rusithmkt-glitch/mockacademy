@@ -2,10 +2,16 @@
 
 import { ProgressBar } from "@/components/ui/progress";
 import { getProgressPercent } from "@/lib/course";
-import { useDemoStore } from "@/lib/progress/provider";
 
-export function LessonProgress({ sessionIds }: { sessionIds: string[] }) {
-  const { completedSessionIds } = useDemoStore();
+export function LessonProgress({
+  sessionIds,
+  completedSessionIds,
+  signedIn,
+}: {
+  sessionIds: string[];
+  completedSessionIds: string[];
+  signedIn: boolean;
+}) {
   const completed = sessionIds.filter((id) =>
     completedSessionIds.includes(id),
   ).length;
@@ -19,7 +25,9 @@ export function LessonProgress({ sessionIds }: { sessionIds: string[] }) {
         label="Course progress"
       />
       <span className="shrink-0 text-[0.65rem] text-muted-foreground">
-        {completed} of {sessionIds.length} complete
+        {signedIn
+          ? `${completed} of ${sessionIds.length} complete`
+          : "Sign in to track progress"}
       </span>
     </div>
   );

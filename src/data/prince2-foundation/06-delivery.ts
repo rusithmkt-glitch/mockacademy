@@ -12,7 +12,7 @@ export const deliveryModule: CourseModule = {
   scene: "delivery",
   sessions: [
     {
-      id: "m6-s1",
+      id: "delivery-and-closure/controlling-a-stage",
       slug: "controlling-a-stage",
       title: "Controlling a stage",
       summary:
@@ -66,7 +66,7 @@ export const deliveryModule: CourseModule = {
       },
     },
     {
-      id: "m6-s2",
+      id: "delivery-and-closure/managing-product-delivery",
       slug: "managing-product-delivery",
       title: "Managing product delivery",
       summary:
@@ -115,7 +115,7 @@ export const deliveryModule: CourseModule = {
       },
     },
     {
-      id: "m6-s3",
+      id: "delivery-and-closure/stage-boundaries",
       slug: "stage-boundaries",
       title: "Managing a stage boundary",
       summary:
@@ -165,7 +165,7 @@ export const deliveryModule: CourseModule = {
       },
     },
     {
-      id: "m6-s4",
+      id: "delivery-and-closure/closing-a-project",
       slug: "closing-a-project",
       title: "Closing a project",
       summary:

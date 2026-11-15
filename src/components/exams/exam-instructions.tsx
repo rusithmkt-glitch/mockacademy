@@ -5,6 +5,7 @@ import {
   ArrowLeft,
   Award,
   Check,
+  CircleAlert,
   Clock3,
   FileText,
   Info,
@@ -12,47 +13,62 @@ import {
   ShieldCheck,
   Target,
 } from "lucide-react";
-import type { ExamConfig, AttemptMode } from "@/lib/exam/types";
+import type { AttemptMode } from "@/lib/exam/types";
+import type { ExamSummary } from "@/lib/exams/types";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const facts = (config: ExamConfig) => [
-  {
-    icon: FileText,
-    label: "Questions",
-    value: String(config.questionCount),
-  },
-  {
-    icon: Clock3,
-    label: "Time allowed",
-    value: `${config.durationMinutes} min`,
-  },
-  {
-    icon: Target,
-    label: "Pass mark",
-    value: `${config.passMarkPercent}%`,
-  },
-  {
-    icon: Award,
-    label: "Format",
-    value: "Closed book",
-  },
-];
+function facts(exam: ExamSummary) {
+  return [
+    {
+      icon: FileText,
+      label: "Questions",
+      value: String(exam.questionCount),
+    },
+    {
+      icon: Clock3,
+      label: "Time allowed",
+      value: `${exam.durationMinutes} min`,
+    },
+    {
+      icon: Target,
+      label: "Pass mark",
+      value: `${exam.passPercent}%`,
+    },
+    {
+      icon: Award,
+      label: "Format",
+      value: "Closed book",
+    },
+  ];
+}
 
 export function ExamInstructions({
-  examTitle,
-  config,
+  exam,
   attemptNumber,
   mode,
+  canStart,
+  isAuthenticated,
+  loginHref,
+  starting,
+  startError,
+  notice,
   onBegin,
 }: {
-  examTitle: string;
-  config: ExamConfig;
+  exam: ExamSummary;
   attemptNumber: number;
   mode: AttemptMode;
+  canStart: boolean;
+  isAuthenticated: boolean;
+  loginHref: string;
+  starting: boolean;
+  startError?: string | null;
+  notice?: string | null;
   onBegin: () => void;
 }) {
+  const formalFrom = exam.feedbackAttempts + 1;
+
   return (
     <div className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
       <section
@@ -77,16 +93,16 @@ export function ExamInstructions({
           id="exam-instructions-title"
           className="mt-3 font-heading text-[1.5rem] leading-snug text-foreground"
         >
-          {examTitle}
+          {exam.title}
         </h2>
         <p className="mt-2 max-w-[62ch] text-pretty text-[0.86rem] leading-relaxed text-muted-foreground">
           {mode === "study"
-            ? "This study attempt shows whether each answer is right and explains why as you work. Use it to learn the syllabus before sitting a formal simulation."
-            : "This is a formal simulation. You will see your score, topic breakdown and full answer review only after you submit."}
+            ? "This practice attempt returns a full answer review, with explanations, as soon as you submit. Use it to learn the syllabus before sitting a formal simulation."
+            : "This is a formal simulation. You will see your score and topic breakdown after submission; answer explanations are withheld for this attempt."}
         </p>
 
         <dl className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {facts(config).map((fact) => (
+          {facts(exam).map((fact) => (
             <div
               key={fact.label}
               className="rounded-xl border border-border/70 bg-background px-3 py-2.5"
@@ -109,13 +125,14 @@ export function ExamInstructions({
             </span>
             <div>
               <p className="text-[0.8rem] font-semibold text-foreground">
-                How attempts work in this demo
+                How attempts work
               </p>
               <p className="mt-1 text-[0.78rem] leading-relaxed text-foreground/70">
-                Attempts 1–2 give immediate feedback. From attempt{" "}
-                {config.attemptPolicy.formalFromAttempt} this paper becomes a
-                formal simulation with feedback withheld until submission. Your
-                attempt count is stored in this browser.
+                Attempts 1–{exam.feedbackAttempts} give immediate feedback. From
+                attempt {formalFrom} the paper becomes a formal simulation with
+                feedback withheld. You have {exam.maxAttempts} attempt
+                {exam.maxAttempts === 1 ? "" : "s"} for this paper, tracked on
+                your account.
               </p>
             </div>
           </div>
@@ -125,9 +142,9 @@ export function ExamInstructions({
           {[
             "Answer one question at a time. You can move backwards and forwards freely.",
             "Flag questions you want to revisit using the review marker.",
-            "The timer starts when you press Begin and keeps counting while you work.",
+            "The timer starts on the server when you begin and keeps running if you refresh.",
             "The paper submits automatically when time runs out. Unanswered questions are marked incorrect.",
-            "A full answer review and recommended lessons appear after you submit.",
+            "Your answers are saved as you go, and scoring happens securely on the server.",
           ].map((item) => (
             <li key={item} className="flex items-start gap-2.5">
               <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-mint-soft text-navy">
@@ -140,11 +157,49 @@ export function ExamInstructions({
           ))}
         </ul>
 
+        {notice ? (
+          <div
+            role="status"
+            className="mt-5 rounded-xl border border-amber/70 bg-amber-soft p-3.5 text-[0.75rem] leading-relaxed text-navy"
+          >
+            {notice}
+          </div>
+        ) : null}
+
+        {startError ? (
+          <div
+            role="alert"
+            className="mt-5 flex items-start gap-2.5 rounded-xl border border-destructive/25 bg-destructive/5 p-3.5 text-[0.75rem] leading-relaxed text-destructive"
+          >
+            <CircleAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+            <p>{startError}</p>
+          </div>
+        ) : null}
+
         <div className="mt-6 flex flex-wrap items-center gap-3">
-          <Button type="button" size="cta" onClick={onBegin}>
-            <Play className="size-4" aria-hidden="true" />
-            Begin {mode === "study" ? "study attempt" : "formal exam"}
-          </Button>
+          {!isAuthenticated ? (
+            <Link
+              href={loginHref}
+              className={buttonVariants({ size: "cta" })}
+            >
+              Sign in to begin
+              <Play className="size-4" aria-hidden="true" />
+            </Link>
+          ) : (
+            <Button
+              type="button"
+              size="cta"
+              onClick={onBegin}
+              disabled={!canStart || starting}
+            >
+              <Play className="size-4" aria-hidden="true" />
+              {starting
+                ? "Starting…"
+                : canStart
+                  ? `Begin ${mode === "study" ? "study attempt" : "formal exam"}`
+                  : "No attempts remaining"}
+            </Button>
+          )}
           <Link
             href="/mock-exams"
             className={buttonVariants({ variant: "outline", size: "cta" })}
@@ -155,8 +210,9 @@ export function ExamInstructions({
         </div>
 
         <p className="mt-4 text-[0.65rem] leading-relaxed text-muted-foreground">
-          Frontend demonstration only. The timer and attempt policy run in your
-          browser; server-side enforcement and secure scoring belong to Phase 3.
+          {isAuthenticated
+            ? "Your start time, answers and submission are recorded on the server. Refreshing or reconnecting will resume the same attempt."
+            : "A free account is required so your attempt, timer and score can be stored securely."}
         </p>
       </section>
 

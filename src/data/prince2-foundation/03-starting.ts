@@ -12,7 +12,7 @@ export const startingModule: CourseModule = {
   scene: "starting",
   sessions: [
     {
-      id: "m3-s1",
+      id: "starting-a-project/starting-up-a-project",
       slug: "starting-up-a-project",
       title: "Starting up a project",
       summary:
@@ -68,7 +68,7 @@ export const startingModule: CourseModule = {
       },
     },
     {
-      id: "m3-s2",
+      id: "starting-a-project/directing-a-project",
       slug: "directing-a-project",
       title: "Directing a project",
       summary:
@@ -123,7 +123,7 @@ export const startingModule: CourseModule = {
       },
     },
     {
-      id: "m3-s3",
+      id: "starting-a-project/initiating-a-project",
       slug: "initiating-a-project",
       title: "Initiating a project",
       summary:
@@ -177,7 +177,7 @@ export const startingModule: CourseModule = {
       },
     },
     {
-      id: "m3-s4",
+      id: "starting-a-project/the-business-case",
       slug: "the-business-case",
       title: "The business case",
       summary:

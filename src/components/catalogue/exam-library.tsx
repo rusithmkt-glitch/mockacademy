@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { BrandMark } from "@/components/logo";
 import { FilterTabs } from "@/components/catalogue/filter-tabs";
-import type { ExamSet } from "@/data/types";
+import type { ExamDifficultyLabel, ExamSummary } from "@/lib/exams/types";
 import { cn } from "@/lib/utils";
 
 const headerTones = ["bg-lavender", "bg-amber", "bg-mint"] as const;
@@ -22,7 +22,7 @@ const filterGroups = [
   { id: "rapid", label: "Rapid revision" },
 ] as const;
 
-const difficultyGroup: Record<ExamSet["difficulty"], string> = {
+const difficultyGroup: Record<ExamDifficultyLabel, string> = {
   "Full simulation": "full",
   "Focused practice": "focused",
   "Rapid revision": "rapid",
@@ -43,7 +43,7 @@ function MetaChip({
   );
 }
 
-function ExamTile({ exam, index }: { exam: ExamSet; index: number }) {
+function ExamTile({ exam, index }: { exam: ExamSummary; index: number }) {
   return (
     <Link
       href={`/mock-exams/${exam.slug}`}
@@ -90,7 +90,7 @@ function ExamTile({ exam, index }: { exam: ExamSet; index: number }) {
             <span className="rounded-md border border-border/80 bg-muted/40 px-2 py-0.5 text-[0.6rem] font-semibold text-foreground/70">
               {exam.difficulty}
             </span>
-            {exam.featured ? (
+            {exam.isFeatured ? (
               <span className="rounded-md bg-navy px-2 py-0.5 text-[0.6rem] font-semibold text-white">
                 Start here
               </span>
@@ -134,7 +134,7 @@ function ExamTile({ exam, index }: { exam: ExamSet; index: number }) {
   );
 }
 
-export function ExamLibrary({ exams }: { exams: ExamSet[] }) {
+export function ExamLibrary({ exams }: { exams: ExamSummary[] }) {
   const [active, setActive] = useState("all");
 
   const options = useMemo(

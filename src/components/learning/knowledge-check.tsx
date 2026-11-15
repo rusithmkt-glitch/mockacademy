@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowRight,
   Check,
@@ -22,7 +23,10 @@ import {
   scoreAssessment,
   type AssessmentScore,
 } from "@/lib/lesson/assessment";
-import { useDemoStore } from "@/lib/progress/provider";
+import {
+  submitKnowledgeCheckAction,
+  type KnowledgeCheckOutcome,
+} from "@/lib/knowledge/actions";
 import { cn } from "@/lib/utils";
 
 const typeLabels: Record<CheckQuestion["type"], string> = {
@@ -36,17 +40,26 @@ export function KnowledgeCheck({
   questions,
   nextHref,
   nextTitle,
+  signedIn,
+  signInHref,
+  completed,
 }: {
   sessionId: string;
   questions: CheckQuestion[];
   nextHref: string | null;
   nextTitle?: string;
+  signedIn: boolean;
+  signInHref: string;
+  completed: boolean;
 }) {
-  const { completeSession } = useDemoStore();
+  const router = useRouter();
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string[]>>({});
   const [submitted, setSubmitted] = useState(false);
   const [summary, setSummary] = useState<AssessmentScore | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [outcome, setOutcome] = useState<KnowledgeCheckOutcome | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const headingId = useId();
   const promptId = useId();
 
@@ -77,6 +90,24 @@ export function KnowledgeCheck({
     setSubmitted(true);
   }
 
+  async function persistAnswers(currentAnswers: Record<string, string[]>) {
+    setSaving(true);
+    setSaveError(null);
+
+    const result = await submitKnowledgeCheckAction({
+      sessionKey: sessionId,
+      answers: currentAnswers,
+    });
+
+    if (result.ok) {
+      setOutcome(result.data);
+      router.refresh();
+    } else {
+      setSaveError(result.error);
+    }
+    setSaving(false);
+  }
+
   function advance() {
     if (!isLastQuestion) {
       setIndex((current) => current + 1);
@@ -86,11 +117,7 @@ export function KnowledgeCheck({
 
     const result = scoreAssessment(questions, answers);
     setSummary(result);
-    completeSession({
-      sessionId,
-      percent: result.percent,
-      completedAt: new Date().toISOString(),
-    });
+    if (signedIn) void persistAnswers(answers);
   }
 
   function reset() {
@@ -98,6 +125,8 @@ export function KnowledgeCheck({
     setSubmitted(false);
     setIndex(0);
     setSummary(null);
+    setOutcome(null);
+    setSaveError(null);
   }
 
   if (summary) {
@@ -113,7 +142,7 @@ export function KnowledgeCheck({
             Knowledge check
           </Badge>
           <span className="text-[0.62rem] font-medium uppercase tracking-[0.12em] text-muted-foreground">
-            Results
+            {completed ? "Session complete" : "Results"}
           </span>
         </div>
         <h2
@@ -130,15 +159,41 @@ export function KnowledgeCheck({
           <div className="min-w-0 flex-1">
             <p className="text-[0.86rem] font-medium text-foreground">
               {summary.percent === 100
-                ? "Perfect — this session is complete."
+                ? "Perfect score."
                 : summary.percent >= 60
-                  ? "Nice work. This session is complete."
+                  ? "That is a pass."
                   : "Good start. Review the explanations and try again."}
             </p>
             <p className="mt-1 text-[0.75rem] text-muted-foreground">
-              Your lesson is marked complete in this demo. Retry any time to
-              improve your score.
+              {!signedIn
+                ? "Sign in to save this result and mark the session complete."
+                : saving
+                  ? "Saving your result…"
+                  : outcome
+                    ? `Attempt ${outcome.attemptNumber} saved. ${
+                        outcome.passed
+                          ? "This session is now complete."
+                          : "Pass the check to complete this session."
+                      }`
+                    : ""}
             </p>
+            {signedIn && saveError ? (
+              <div
+                role="alert"
+                className="mt-2 flex flex-wrap items-center gap-2 text-[0.75rem] text-destructive"
+              >
+                <span>{saveError}</span>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => void persistAnswers(answers)}
+                  disabled={saving}
+                >
+                  Try saving again
+                </Button>
+              </div>
+            ) : null}
             <ProgressBar
               value={summary.percent}
               label="Knowledge check score"
@@ -200,6 +255,12 @@ export function KnowledgeCheck({
         </div>
 
         <div className="mt-5 flex flex-wrap items-center gap-3">
+          {!signedIn ? (
+            <Link href={signInHref} className={buttonVariants({ size: "cta" })}>
+              Sign in to save result
+              <ArrowRight className="size-4" aria-hidden="true" />
+            </Link>
+          ) : null}
           <Button type="button" variant="outline" size="cta" onClick={reset}>
             <RotateCcw className="size-4" aria-hidden="true" />
             Retry check
@@ -422,8 +483,9 @@ export function KnowledgeCheck({
       </div>
 
       <p className="mt-4 border-t border-border pt-3 text-[0.65rem] leading-relaxed text-muted-foreground">
-        Demonstration only — your score is stored in this browser and updates
-        the course progress shown in the sidebar.
+        {signedIn
+          ? "Your answers are scored on the server and saved to your account. Passing at 60% or above marks this session complete; you can retry any time."
+          : "Sign in to save your result. Knowledge checks can be retried any time."}
       </p>
     </section>
   );

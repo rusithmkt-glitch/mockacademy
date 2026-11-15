@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ArrowRight, Menu, X } from "lucide-react";
+import { ArrowRight, LogOut, Menu, ShieldCheck, X } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { buttonVariants } from "@/components/ui/button";
+import { signOut } from "@/lib/auth/actions";
+import type { Viewer } from "@/lib/auth/session";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -18,7 +20,18 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function SiteHeader() {
+function initials(viewer: Viewer) {
+  return (
+    [viewer.firstName, viewer.lastName]
+      .filter(Boolean)
+      .map((part) => part[0]?.toUpperCase())
+      .join("") ||
+    viewer.email.slice(0, 1).toUpperCase() ||
+    "S"
+  );
+}
+
+export function SiteHeader({ viewer }: { viewer?: Viewer | null }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -55,28 +68,68 @@ export function SiteHeader() {
                 </Link>
               );
             })}
+            {viewer?.isAdmin ? (
+              <Link
+                href="/admin"
+                aria-current={isActive(pathname, "/admin") ? "page" : undefined}
+                className={cn(
+                  "rounded-full px-3.5 py-2 text-sm font-medium transition-colors",
+                  isActive(pathname, "/admin")
+                    ? "bg-accent text-accent-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                )}
+              >
+                Admin
+              </Link>
+            ) : null}
           </nav>
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="hidden items-center gap-2 sm:flex">
-            <Link
-              href="/login"
-              className="rounded-full px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            >
-              Log in
-            </Link>
-            <Link
-              href="/mock-exams"
-              className={buttonVariants({
-                size: "cta",
-                className: "h-9 px-4 text-[0.8rem]",
-              })}
-            >
-              Start free mock
-              <ArrowRight className="size-3.5" aria-hidden="true" />
-            </Link>
-          </div>
+          {viewer ? (
+            <div className="hidden items-center gap-2 sm:flex">
+              <Link
+                href="/dashboard"
+                className="flex items-center gap-2 rounded-full border border-border bg-card px-2.5 py-1.5 text-[0.8rem] font-medium text-foreground transition-colors hover:bg-muted"
+              >
+                <span className="flex size-6 items-center justify-center rounded-full bg-navy text-[0.6rem] font-semibold text-white">
+                  {initials(viewer)}
+                </span>
+                <span className="max-w-[9rem] truncate">
+                  {viewer.firstName || "Dashboard"}
+                </span>
+              </Link>
+              <form action={signOut}>
+                <button
+                  type="submit"
+                  className="flex size-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  aria-label="Log out"
+                  title="Log out"
+                >
+                  <LogOut className="size-4" aria-hidden="true" />
+                </button>
+              </form>
+            </div>
+          ) : (
+            <div className="hidden items-center gap-2 sm:flex">
+              <Link
+                href="/login"
+                className="rounded-full px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                Log in
+              </Link>
+              <Link
+                href="/mock-exams"
+                className={buttonVariants({
+                  size: "cta",
+                  className: "h-9 px-4 text-[0.8rem]",
+                })}
+              >
+                Start free mock
+                <ArrowRight className="size-3.5" aria-hidden="true" />
+              </Link>
+            </div>
+          )}
           <button
             type="button"
             onClick={() => setOpen((value) => !value)}
@@ -115,13 +168,35 @@ export function SiteHeader() {
                 </Link>
               );
             })}
-            <Link
-              href="/login"
-              onClick={() => setOpen(false)}
-              className="rounded-xl px-4 py-3 text-[0.95rem] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            >
-              Log in
-            </Link>
+            {viewer?.isAdmin ? (
+              <Link
+                href="/admin"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2 rounded-xl px-4 py-3 text-[0.95rem] font-medium text-foreground transition-colors hover:bg-muted"
+              >
+                <ShieldCheck className="size-4" aria-hidden="true" />
+                Admin
+              </Link>
+            ) : null}
+            {viewer ? (
+              <form action={signOut} className="mt-1">
+                <button
+                  type="submit"
+                  className="flex w-full items-center gap-2 rounded-xl px-4 py-3 text-left text-[0.95rem] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                >
+                  <LogOut className="size-4" aria-hidden="true" />
+                  Log out
+                </button>
+              </form>
+            ) : (
+              <Link
+                href="/login"
+                onClick={() => setOpen(false)}
+                className="rounded-xl px-4 py-3 text-[0.95rem] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                Log in
+              </Link>
+            )}
           </nav>
           <Link
             href="/mock-exams"
@@ -131,7 +206,7 @@ export function SiteHeader() {
               className: "mt-3 w-full",
             })}
           >
-            Start free mock exam
+            {viewer ? "Start a mock exam" : "Start free mock exam"}
             <ArrowRight className="size-4" aria-hidden="true" />
           </Link>
         </div>

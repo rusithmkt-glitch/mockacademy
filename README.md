@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MockAcademy
 
-## Getting Started
+A free PRINCE2® Foundation learning site: six modules, 23 illustrated lessons,
+knowledge checks and timed mock exams. Built with Next.js App Router, Supabase
+(Postgres, Auth, RLS) and Sanity.
 
-First, run the development server:
+## Quick start
 
 ```bash
+npm install
+cp .env.example .env.local   # add Supabase and Sanity values
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Without environment variables the app still runs: public pages and the bundled
+course render, while exam, dashboard and admin screens show a setup notice.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Learning path** — modules, sessions, animated lesson scenes and
+  CMS-authored content with a bundled fallback.
+- **Knowledge checks** — scored and saved on the server when signed in.
+- **Mock exams** — server-authoritative attempts, server timers, immediate
+  feedback for the first two attempts and a formal third attempt, results with
+  explanations after submission.
+- **Student dashboard** — real progress, recent attempts and topic performance.
+- **Administration** — metrics, question bank editor, exam-set publishing,
+  course status and role management at `/admin`.
+- **Content Studio** — embedded Sanity Studio at `/studio`.
 
-## Learn More
+## Scripts
 
-To learn more about Next.js, take a look at the following resources:
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Local development server |
+| `npm run build` | Production build |
+| `npm run lint` | ESLint |
+| `npm test` | Unit tests (Vitest) |
+| `npm run seed:supabase` | Import exam sets/questions into Supabase |
+| `npm run seed:sanity` | Import the course into Sanity |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Setup
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Full instructions — environment variables, migrations, Auth configuration,
+Sanity schemas and seeding, first super-administrator creation, security model
+and troubleshooting — are in [docs/phase-3-setup.md](docs/phase-3-setup.md).
 
-## Deploy on Vercel
+## Stack
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Next.js 16 (App Router, Cache Components), React 19, TypeScript, Tailwind CSS,
+Supabase (`@supabase/ssr`), Sanity 6 with `next-sanity`, GSAP and Lenis.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+PRINCE2® is a registered trademark of PeopleCert. MockAcademy is an
+independent study resource and is not affiliated with PeopleCert.
