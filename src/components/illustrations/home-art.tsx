@@ -115,7 +115,7 @@ export function HeroArt() {
         <p className="mt-2.5 text-[0.68rem] text-muted-foreground">
           8 of 23 sessions complete
         </p>
-        <ProgressBar value={35} className="mt-2 h-1" barClassName="bg-plum" />
+        <ProgressBar value={35} className="mt-2 h-1" />
       </div>
 
       <div className="absolute -right-3 top-20 hidden w-36 rotate-2 rounded-2xl border border-border bg-card p-3 shadow-lift sm:block lg:-right-6">

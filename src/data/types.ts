@@ -6,6 +6,42 @@ export type SceneVariant =
   | "risk"
   | "delivery";
 
+export type LessonArtKey =
+  | "principles"
+  | "team"
+  | "lifecycle"
+  | "business-case"
+  | "planning"
+  | "risk"
+  | "progress"
+  | "products";
+
+export interface LessonScene {
+  id: string;
+  title: string;
+  description: string;
+  art: LessonArtKey;
+  captions: string[];
+  durationSeconds: number;
+}
+
+export type CheckQuestionType = "single" | "multiple" | "boolean";
+
+export interface CheckOption {
+  id: string;
+  label: string;
+}
+
+export interface CheckQuestion {
+  id: string;
+  type: CheckQuestionType;
+  prompt: string;
+  options: CheckOption[];
+  correctOptionIds: string[];
+  explanation: string;
+  topic: string;
+}
+
 export type CalloutTone = "tip" | "exam" | "note";
 
 export interface LessonCallout {
@@ -40,6 +76,8 @@ export interface Session {
   sections: LessonSection[];
   keyPoints: string[];
   knowledgeCheck: KnowledgeCheck;
+  /** Optional richer assessment; falls back to the single knowledge check. */
+  assessment?: CheckQuestion[];
 }
 
 export interface CourseModule {

@@ -13,6 +13,7 @@ import {
 import type { SyllabusCourse } from "@/data/types";
 import { ProgressBar } from "@/components/ui/progress";
 import { getProgressPercent } from "@/lib/course";
+import { useDemoStore } from "@/lib/progress/provider";
 import { cn } from "@/lib/utils";
 
 function SyllabusContents({
@@ -25,8 +26,7 @@ function SyllabusContents({
   completedIds: string[];
   totalSessions: number;
   onNavigate?: () => void;
-}) {
-  const pathname = usePathname();
+}) {  const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
   const currentModuleSlug = segments[2];
   const currentSessionSlug = segments[3];
@@ -197,14 +197,18 @@ function SyllabusContents({
 
 export function SyllabusSidebar({
   syllabus,
-  completedIds,
   totalSessions,
 }: {
   syllabus: SyllabusCourse;
-  completedIds: string[];
   totalSessions: number;
 }) {
   const pathname = usePathname();
+  const { completedSessionIds } = useDemoStore();
+  const completedIds = completedSessionIds.filter((id) =>
+    syllabus.modules.some((module) =>
+      module.sessions.some((session) => session.id === id),
+    ),
+  );
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [open, setOpen] = useState(false);
   const [activePath, setActivePath] = useState(pathname);

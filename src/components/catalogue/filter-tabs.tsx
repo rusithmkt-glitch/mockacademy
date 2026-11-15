@@ -34,17 +34,17 @@ export function FilterTabs({
             aria-pressed={active}
             onClick={() => onChange(option.id)}
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-[0.75rem] font-semibold transition-colors duration-200",
+              "inline-flex h-9 items-center gap-2 rounded-md border px-3.5 text-[0.74rem] font-medium transition-colors duration-200",
               active
-                ? "border-navy bg-navy text-white shadow-soft"
-                : "border-border bg-card text-foreground/75 hover:border-navy/25 hover:bg-lavender-soft hover:text-foreground",
+                ? "border-navy bg-navy text-white"
+                : "border-border/90 bg-card text-foreground/70 hover:border-navy/30 hover:bg-lavender-soft hover:text-foreground",
             )}
           >
             {option.label}
             {typeof option.count === "number" ? (
               <span
                 className={cn(
-                  "text-[0.65rem] font-medium",
+                  "text-[0.66rem] font-medium tabular-nums",
                   active ? "text-white/55" : "text-muted-foreground",
                 )}
               >

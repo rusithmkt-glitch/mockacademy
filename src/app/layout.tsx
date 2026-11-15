@@ -3,6 +3,7 @@ import { Geist_Mono, Montserrat } from "next/font/google";
 import { SiteHeader } from "@/components/site-header";
 import { ScrollEffects } from "@/components/motion/scroll-effects";
 import { SmoothScroll } from "@/components/motion/smooth-scroll";
+import { DemoDataProvider } from "@/lib/progress/provider";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -60,7 +61,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to content
         </a>
         <SiteHeader />
-        {children}
+        <DemoDataProvider>{children}</DemoDataProvider>
       </body>
     </html>
   );

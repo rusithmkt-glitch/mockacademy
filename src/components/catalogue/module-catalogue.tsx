@@ -35,11 +35,11 @@ function ModuleTile({ module }: { module: ModuleCatalogueItem }) {
   return (
     <Link
       href={module.href}
-      className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-navy/15 hover:shadow-card"
+      className="group flex h-full flex-col overflow-hidden rounded-xl border border-border/80 bg-card shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-navy/15 hover:shadow-card"
     >
       <div
         className={cn(
-          "relative overflow-hidden px-5 pb-4 pt-5",
+          "relative overflow-hidden px-5 py-5",
           headerTones[(module.order - 1) % headerTones.length],
         )}
       >
@@ -56,55 +56,49 @@ function ModuleTile({ module }: { module: ModuleCatalogueItem }) {
           className="absolute right-10 top-10 size-3 rounded-full bg-white/60"
         />
 
-        <div className="relative flex items-start justify-between gap-3">
-          <span className="flex items-center gap-2">
+        <div className="relative flex items-center justify-between gap-3">
+          <span className="flex items-center gap-2.5">
             <BrandMark className="size-6" />
-            <span className="text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-navy/70">
+            <span className="text-[0.68rem] font-bold uppercase tracking-[0.16em] text-navy/75">
               Module {String(module.order).padStart(2, "0")}
             </span>
           </span>
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white text-navy shadow-sm transition-transform duration-300 group-hover:-translate-y-0.5">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white text-navy shadow-sm transition-transform duration-300 group-hover:-translate-y-0.5">
             <ArrowUpRight className="size-4" aria-hidden="true" />
-          </span>
-        </div>
-
-        <div className="relative mt-6 flex flex-wrap items-center gap-1.5">
-          <span
-            className={cn(
-              "rounded-full px-2.5 py-1 text-[0.62rem] font-semibold",
-              status === "Completed"
-                ? "bg-navy text-white"
-                : "bg-white/50 text-navy",
-            )}
-          >
-            {status}
           </span>
         </div>
       </div>
 
       <div className="flex flex-1 flex-col p-5">
-        <h3 className="font-heading text-xl leading-snug text-foreground">
+        <h3 className="font-heading text-[1.05rem] font-semibold leading-snug text-foreground">
           {module.title}
         </h3>
-        <p className="mt-2 text-pretty text-[0.82rem] leading-relaxed text-muted-foreground">
+        <p className="mt-1.5 text-pretty text-[0.8rem] leading-relaxed text-muted-foreground">
           {module.tagline}
         </p>
 
         <div className="mt-4 flex flex-wrap gap-1.5">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-1 text-[0.65rem] font-medium text-foreground/75">
+          <span className="inline-flex items-center gap-1.5 rounded-md border border-border/80 bg-muted/40 px-2 py-1 text-[0.62rem] font-medium text-foreground/70">
             <BookOpen className="size-3 text-plum" aria-hidden="true" />
             {module.sessionCount} sessions
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-1 text-[0.65rem] font-medium text-foreground/75">
+          <span className="inline-flex items-center gap-1.5 rounded-md border border-border/80 bg-muted/40 px-2 py-1 text-[0.62rem] font-medium text-foreground/70">
             <Clock3 className="size-3 text-plum" aria-hidden="true" />
             {module.durationLabel}
           </span>
         </div>
 
         <div className="mt-auto border-t border-border/80 pt-4">
-          <div className="flex items-center justify-between text-[0.65rem]">
-            <span className="font-medium text-foreground/75">{status}</span>
-            <span className="text-muted-foreground">
+          <div className="flex items-center justify-between gap-3">
+            <span
+              className={cn(
+                "text-[0.66rem] font-semibold",
+                status === "Completed" ? "text-foreground" : "text-foreground/60",
+              )}
+            >
+              {status}
+            </span>
+            <span className="text-[0.66rem] tabular-nums text-muted-foreground">
               {module.completedSessions} of {module.sessionCount} · {percent}%
             </span>
           </div>

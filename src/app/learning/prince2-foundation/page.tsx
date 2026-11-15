@@ -169,7 +169,7 @@ export default function CoursePage() {
                       <CheckCircle2 className="size-3.5 text-gold" aria-hidden="true" />
                       Pass mark
                     </span>
-                    <span className="text-white/85">55% (33/60)</span>
+                    <span className="text-white/85">60% (36/60)</span>
                   </div>
                 </div>
               </aside>

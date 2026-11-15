@@ -15,6 +15,7 @@ import { ExamLibrary } from "@/components/catalogue/exam-library";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { examBlueprint, examSets } from "@/data/mock-exams";
+import { getExamConfig } from "@/data/exams/config";
 
 export const metadata: Metadata = {
   title: "Free PRINCE2 Foundation mock exams",
@@ -22,10 +23,15 @@ export const metadata: Metadata = {
     "Five free PRINCE2 Foundation mock papers: full 60-question simulations and focused practice sets. Built around the official exam format.",
 };
 
+const defaultConfig = getExamConfig("mock-a");
+
 const examFormat = [
-  { label: "Questions", value: "60" },
-  { label: "Time allowed", value: "60 min" },
-  { label: "Pass mark", value: "55%" },
+  { label: "Questions", value: String(defaultConfig?.questionCount ?? 60) },
+  {
+    label: "Time allowed",
+    value: `${defaultConfig?.durationMinutes ?? 60} min`,
+  },
+  { label: "Pass mark", value: `${defaultConfig?.passMarkPercent ?? 60}%` },
   { label: "Format", value: "Closed book" },
 ];
 

@@ -2,19 +2,20 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BookOpen, Clock3, ListChecks } from "lucide-react";
-import { SceneIllustration } from "@/components/illustrations/scene-illustration";
 import { PageMotion } from "@/components/motion/page-motion";
 import { KeyPoints, LessonSections } from "@/components/lesson/lesson-content";
-import { KnowledgeCheckPreview } from "@/components/lesson/knowledge-check-preview";
 import { LessonNavigation } from "@/components/lesson/lesson-navigation";
-import { ProgressBar } from "@/components/ui/progress";
-import { student } from "@/data/student";
+import { LessonProgress } from "@/components/learning/lesson-progress";
+import { ScenePlayer } from "@/components/learning/scene-player";
+import { KnowledgeCheck } from "@/components/learning/knowledge-check";
 import {
   course,
+  getAllSessions,
   getAdjacentSessions,
-  getProgressPercent,
   getSession,
 } from "@/lib/course";
+import { getSessionAssessment } from "@/lib/lesson/assessment";
+import { buildSessionScenes } from "@/lib/lesson/scenes";
 
 type Params = {
   moduleSlug: string;
@@ -61,9 +62,12 @@ export default async function LessonPage({
     module.slug,
     session.slug,
   );
-  const completed = student.completedSessionIds.length;
-  const percent = getProgressPercent(completed, total);
   const sessionNumber = index + 1;
+  const scenes = buildSessionScenes(session, module);
+  const assessment = getSessionAssessment(session, module.shortTitle);
+  const nextHref = next
+    ? `/learning/prince2-foundation/${next.module.slug}/${next.session.slug}`
+    : null;
 
   return (
     <main id="main" className="min-w-0">
@@ -119,14 +123,9 @@ export default async function LessonPage({
           {session.summary}
         </p>
 
-        <div className="mt-6 flex max-w-md items-center gap-3">
-          <ProgressBar value={percent} className="h-1.5 flex-1" />
-          <span className="shrink-0 text-[0.65rem] text-muted-foreground">
-            {completed} of {total} complete
-          </span>
-        </div>
+        <LessonProgress sessionIds={getAllSessions().map((item) => item.id)} />
 
-        <SceneIllustration variant={module.scene} className="mt-8" />
+        <ScenePlayer scenes={scenes} />
 
         <section
           aria-labelledby="session-objectives"
@@ -159,9 +158,11 @@ export default async function LessonPage({
 
         <KeyPoints points={session.keyPoints} />
 
-        <KnowledgeCheckPreview
-          check={session.knowledgeCheck}
-          topic={module.shortTitle}
+        <KnowledgeCheck
+          sessionId={session.id}
+          questions={assessment}
+          nextHref={nextHref}
+          nextTitle={next?.session.title}
         />
 
         <LessonNavigation previous={previous} next={next} />

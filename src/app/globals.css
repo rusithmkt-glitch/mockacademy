@@ -49,6 +49,7 @@
   --color-amber-soft: var(--amber-soft);
   --color-mint: var(--mint);
   --color-mint-soft: var(--mint-soft);
+  --color-green: var(--green);
   --color-plum: var(--plum);
   --color-magenta: var(--magenta);
   --color-navy: var(--navy);
@@ -111,6 +112,7 @@
   --amber-soft: oklch(0.962 0.055 92);
   --mint: oklch(0.8 0.095 165);
   --mint-soft: oklch(0.955 0.03 165);
+  --green: oklch(0.6 0.12 165);
   --plum: oklch(0.48 0.12 320);
   --magenta: oklch(0.63 0.21 355);
   --navy: oklch(0.275 0.062 268);

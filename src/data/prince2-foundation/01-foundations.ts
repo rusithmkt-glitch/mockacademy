@@ -72,6 +72,54 @@ export const foundationsModule: CourseModule = {
         explanation:
           "The principles are guiding obligations. They always apply, even when the practices and processes are tailored to suit the project.",
       },
+      assessment: [
+        {
+          id: "m1-s1-a1",
+          type: "single",
+          prompt:
+            "Which element of PRINCE2 describes the activities that move a project from an idea to closure?",
+          options: [
+            { id: "a", label: "The principles" },
+            { id: "b", label: "The people element" },
+            { id: "c", label: "The practices" },
+            { id: "d", label: "The processes" },
+          ],
+          correctOptionIds: ["d"],
+          explanation:
+            "Processes describe the activities that take a project from mandate through to closure. Practices cover what must be managed, not the sequence of activities.",
+          topic: "Foundations",
+        },
+        {
+          id: "m1-s1-a2",
+          type: "multiple",
+          prompt:
+            "Which of these are integrated elements of the PRINCE2 method? Select all that apply.",
+          options: [
+            { id: "a", label: "Principles" },
+            { id: "b", label: "People" },
+            { id: "c", label: "Practices" },
+            { id: "d", label: "Budgets" },
+          ],
+          correctOptionIds: ["a", "b", "c"],
+          explanation:
+            "The four integrated elements are principles, people, practices and processes. A budget is a project constraint, not a PRINCE2 element.",
+          topic: "Foundations",
+        },
+        {
+          id: "m1-s1-a3",
+          type: "boolean",
+          prompt:
+            "A project is a temporary organisation created to deliver one or more business products against an agreed business case.",
+          options: [
+            { id: "true", label: "True" },
+            { id: "false", label: "False" },
+          ],
+          correctOptionIds: ["true"],
+          explanation:
+            "That is the PRINCE2 definition of a project: temporary, product-focused and justified by a business case.",
+          topic: "Foundations",
+        },
+      ],
     },
     {
       id: "m1-s2",

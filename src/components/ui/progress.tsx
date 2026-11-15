@@ -3,12 +3,10 @@ import { cn } from "@/lib/utils";
 export function ProgressBar({
   value,
   className,
-  barClassName,
   label,
 }: {
   value: number;
   className?: string;
-  barClassName?: string;
   label?: string;
 }) {
   const clamped = Math.min(100, Math.max(0, Math.round(value)));
@@ -22,10 +20,7 @@ export function ProgressBar({
       className={cn("h-1.5 w-full overflow-hidden rounded-full bg-muted", className)}
     >
       <div
-        className={cn(
-          "h-full rounded-full bg-primary transition-[width] duration-700 ease-out",
-          barClassName,
-        )}
+        className="h-full rounded-full bg-green transition-[width] duration-700 ease-out"
         style={{ width: `${clamped}%` }}
       />
     </div>
@@ -74,7 +69,7 @@ export function ProgressRing({
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="var(--primary)"
+          stroke="var(--green)"
           strokeWidth={strokeWidth}
           strokeLinecap="round"
           strokeDasharray={circumference}

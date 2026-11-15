@@ -50,7 +50,7 @@ export const prince2Foundation: Course = {
   examDetails: {
     questions: 60,
     durationMinutes: 60,
-    passMark: "55% (33 out of 60)",
+    passMark: "60% (36 out of 60)",
     format: "Multiple choice, closed book",
   },
   modules: [

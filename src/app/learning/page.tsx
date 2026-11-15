@@ -221,7 +221,6 @@ export default function LearningPage() {
                   <ProgressBar
                     value={percent}
                     className="mt-2 h-1.5 bg-white/15"
-                    barClassName="bg-gold"
                     label="Demonstration course progress"
                   />
                   <p className="mt-2 text-[0.68rem] text-white/40">

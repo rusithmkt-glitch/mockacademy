@@ -45,7 +45,7 @@ const faqs = [
   {
     question: "What is the PRINCE2 Foundation exam format?",
     answer:
-      "The current Foundation exam is 60 multiple-choice questions in 60 minutes, closed book, with a pass mark of 55% (33 out of 60). Always check the latest details with PeopleCert before booking your exam.",
+      "The current Foundation exam is 60 multiple-choice questions in 60 minutes, closed book, with a pass mark of 60% (36 out of 60). Always check the latest details with PeopleCert before booking your exam.",
   },
   {
     question: "Which edition of PRINCE2 does the course follow?",
