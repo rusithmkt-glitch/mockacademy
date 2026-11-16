@@ -16,7 +16,7 @@ const content = {
     description:
       "Everything you need to prepare for PRINCE2 Foundation, without a subscription or a sales call.",
     points: [
-      "23 illustrated lessons across six modules",
+      "66 illustrated sessions across 13 modules",
       "Five free full and focused mock papers",
       "A single syllabus that tracks your progress",
     ],
@@ -74,8 +74,8 @@ export function AuthAside({ mode }: { mode: "login" | "register" }) {
         </p>
         <dl className="mt-4 grid grid-cols-4 gap-3">
           {[
-            { icon: Layers, value: "6", label: "modules" },
-            { icon: BookOpen, value: "23", label: "lessons" },
+            { icon: Layers, value: "13", label: "modules" },
+            { icon: BookOpen, value: "66", label: "sessions" },
             { icon: FileText, value: "5", label: "mock papers" },
             { icon: LockOpen, value: "£0", label: "forever" },
           ].map(({ icon: Icon, value, label }) => (

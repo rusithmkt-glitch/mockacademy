@@ -243,8 +243,7 @@ export function ExamInstructions({
           </p>
           <p className="mt-1.5 text-[0.78rem] leading-relaxed text-navy/75">
             MockAcademy papers are original study material. They are not
-            official PeopleCert questions and do not guarantee a real exam
-            result.
+            real exam questions and do not guarantee an exam result.
           </p>
         </div>
       </aside>

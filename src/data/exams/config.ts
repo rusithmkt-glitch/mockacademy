@@ -96,9 +96,9 @@ export const examTopics: ExamTopic[] = [
 ];
 
 export const topicModuleMap: Record<string, string> = {
-  Principles: "foundations",
+  Principles: "principles",
   People: "people",
-  Practices: "planning-and-quality",
-  Processes: "delivery-and-closure",
-  "Project context": "starting-a-project",
+  Practices: "business-case",
+  Processes: "starting-and-initiating",
+  "Project context": "tailoring-and-exam-preparation",
 };

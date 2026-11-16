@@ -70,9 +70,9 @@ export function SiteFooter() {
         <div className="mt-12 flex flex-col gap-4 border-t border-white/10 pt-6 text-xs leading-relaxed text-white/40 lg:flex-row lg:items-start lg:justify-between">
           <p>© 2026 MockAcademy.org. Free PRINCE2 Foundation preparation.</p>
           <p className="max-w-2xl lg:text-right">
-            MockAcademy is an independent study platform. PRINCE2® is a
-            registered trademark of PeopleCert. MockAcademy is not affiliated
-            with, endorsed by or sponsored by PeopleCert or AXELOS.
+            PRINCE2® is a registered trademark of the PeopleCert group.
+            MockAcademy is independent and not affiliated with, endorsed by or
+            licensed by PeopleCert.
           </p>
         </div>
       </div>

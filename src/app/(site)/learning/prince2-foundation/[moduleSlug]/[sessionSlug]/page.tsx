@@ -182,8 +182,9 @@ export default async function LessonPage({
         <LessonNavigation previous={previous} next={next} />
 
         <p className="mt-8 text-[0.65rem] leading-relaxed text-muted-foreground">
-          PRINCE2® is a registered trademark of PeopleCert. MockAcademy is an
-          independent study resource and is not affiliated with PeopleCert.
+          PRINCE2® is a registered trademark of the PeopleCert group.
+          MockAcademy is independent and not affiliated with, endorsed by or
+          licensed by PeopleCert.
         </p>
       </article>
     </main>

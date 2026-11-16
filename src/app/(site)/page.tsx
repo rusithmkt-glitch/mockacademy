@@ -37,9 +37,9 @@ const faqs = [
       "You can browse the course and the exam catalogue without signing in. Create a free account when you want us to save lesson progress and knowledge-check results to your dashboard.",
   },
   {
-    question: "Is MockAcademy official PRINCE2 training?",
+    question: "Is MockAcademy affiliated with PeopleCert?",
     answer:
-      "No. MockAcademy is an independent study platform and is not affiliated with PeopleCert. PRINCE2® is a registered trademark of PeopleCert. Our content is written to align with the PRINCE2 Foundation syllabus, but it is not official courseware.",
+      "No. PRINCE2® is a registered trademark of the PeopleCert group. MockAcademy is independent and not affiliated with, endorsed by or licensed by PeopleCert. Every lesson and question is original material written to help you prepare for the PRINCE2 7th edition Foundation exam.",
   },
   {
     question: "What is the PRINCE2 Foundation exam format?",
@@ -54,7 +54,7 @@ const faqs = [
   {
     question: "How long does the course take?",
     answer:
-      "The 23 lessons total around six hours of focused study. Most learners spread this over a few weeks and add two or three mock exams before sitting the real thing.",
+      "The 66 sessions total around 15 hours of focused study. Most learners spread this over a few weeks and add two or three mock exams before sitting the real thing.",
   },
   {
     question: "Can I study on a phone or tablet?",
@@ -368,7 +368,7 @@ export default function HomePage() {
                 Lessons that make the method click.
               </h2>
               <p className="mt-4 max-w-xl text-pretty text-base leading-relaxed text-muted-foreground">
-                Twenty-three short sessions take you from the seven principles
+                Sixty-six short sessions take you from the seven principles
                 to project closure. Each one explains the idea in plain English,
                 shows it in context and ends with a quick knowledge check.
               </p>
@@ -455,7 +455,7 @@ export default function HomePage() {
               eyebrow="The course"
               pillTone="lavender"
               title="A complete PRINCE2 Foundation syllabus."
-              description="Six modules, 23 sessions and a clear path through the method — from the principles to the closing process."
+              description="13 modules, 66 sessions and a clear path through the method — from the principles to the closing process."
             />
             <Link
               href="/learning/prince2-foundation"
@@ -540,8 +540,8 @@ export default function HomePage() {
                   Independent and transparent
                 </p>
                 <p className="mt-1 text-[0.8rem] leading-relaxed text-muted-foreground">
-                  MockAcademy is an independent study resource. PRINCE2® is a
-                  registered trademark of PeopleCert.
+                  PRINCE2® is a registered trademark of the PeopleCert group.
+                  MockAcademy is independent and not affiliated with PeopleCert.
                 </p>
               </div>
             </div>

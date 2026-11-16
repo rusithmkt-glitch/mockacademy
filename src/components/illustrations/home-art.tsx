@@ -113,7 +113,7 @@ export function HeroArt() {
           </p>
         </div>
         <p className="mt-2.5 text-[0.68rem] text-muted-foreground">
-          8 of 23 sessions complete
+          23 of 66 sessions complete
         </p>
         <ProgressBar value={35} className="mt-2 h-1" />
       </div>
@@ -299,7 +299,7 @@ export function LearningArt() {
           Course
         </p>
         <p className="text-[0.7rem] font-semibold text-foreground">
-          6 modules · 23 lessons
+          13 modules · 66 sessions
         </p>
       </div>
     </div>

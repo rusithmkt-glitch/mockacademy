@@ -23,7 +23,7 @@ import { listPublishedExams } from "@/lib/exams/queries";
 export const metadata: Metadata = {
   title: "Free PRINCE2 Foundation mock exams",
   description:
-    "Five free PRINCE2 Foundation mock papers: full 60-question simulations and focused practice sets. Built around the official exam format.",
+    "Five free PRINCE2 Foundation mock papers: full 60-question simulations and focused practice sets. Built around the real exam format.",
 };
 
 export const instant = false;
@@ -310,7 +310,7 @@ export default async function MockExamsPage() {
                   New to PRINCE2? Start with the free course.
                 </h2>
                 <p className="mt-2 text-pretty text-sm leading-relaxed text-muted-foreground">
-                  Twenty-three illustrated lessons cover the full syllabus, so
+                  Sixty-six illustrated sessions cover the full syllabus, so
                   your first mock measures understanding rather than guesswork.
                 </p>
               </div>

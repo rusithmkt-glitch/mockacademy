@@ -380,7 +380,7 @@ export const foundationsModule: CourseModule = {
           id: "m1-s3-1",
           paragraphs: [
             "It's time to look at how you'll know whether the project is going well.",
-            "Let's say your accountant sits you down a week before the builders start. \"You're about to spend most of your savings,\" she says. \"How will we know if the York project is on track?\"",
+            "Let's say your accountant sits you down a week before the builders start. \"You're about to spend most of your savings,\" they say. \"How will we know if the York project is on track?\"",
           ],
           scenario: {
             question: "What would you measure?",

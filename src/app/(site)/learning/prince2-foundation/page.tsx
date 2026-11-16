@@ -31,7 +31,7 @@ import { getCompletedSessionIds } from "@/lib/progress/queries";
 export const metadata: Metadata = {
   title: "PRINCE2 Foundation course",
   description:
-    "The complete free PRINCE2 Foundation course: 6 modules, 23 illustrated sessions, learning objectives and full syllabus. Start learning today.",
+    "The complete free PRINCE2 Foundation course: 13 modules, 66 illustrated sessions, learning objectives and full syllabus. Start learning today.",
 };
 
 const benefitIcons = [ListChecks, Sparkles, CheckCircle2, Clock3];
@@ -340,7 +340,7 @@ export default async function CoursePage() {
             <div>
               <SectionHeading
                 eyebrow="Study time"
-                title="Around six focused hours."
+                title="Around 15 focused hours."
                 description="Lesson time is only part of the picture. Leave room for knowledge checks and at least one full mock exam before test day."
               />
               <div className="mt-7 rounded-2xl border border-border bg-card p-5">

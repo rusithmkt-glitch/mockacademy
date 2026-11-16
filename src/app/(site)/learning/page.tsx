@@ -39,7 +39,7 @@ export const instant = false;
 export const metadata: Metadata = {
   title: "Free PRINCE2 Foundation learning",
   description:
-    "Study the complete PRINCE2 Foundation syllabus with 6 modules, 23 illustrated lessons and knowledge checks. Free, structured and designed for UK learners.",
+    "Study the complete PRINCE2 Foundation syllabus with 13 modules, 66 illustrated sessions and knowledge checks. Free, structured and designed for UK learners.",
 };
 
 export default async function LearningPage() {
@@ -104,7 +104,7 @@ export default async function LearningPage() {
                 A clear path through PRINCE2 Foundation.
               </h1>
               <p className="mt-5 max-w-xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
-                One course, six modules and twenty-three short sessions. Learn
+                One course, 13 modules and 66 short sessions. Learn
                 the method in sequence, check your understanding as you go, and
                 always know what comes next.
               </p>
@@ -163,7 +163,7 @@ export default async function LearningPage() {
         <section className="shell py-16 lg:py-20">
           <CatalogueIntro
             pill="Learning path"
-            title="Six modules, built in the right order."
+            title="13 modules, built in the right order."
             description="Start with the principles and context, then follow the project lifecycle from start-up to closure. Filter by where you are."
           />
           <ModuleCatalogue modules={moduleItems} />
