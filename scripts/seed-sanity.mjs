@@ -151,6 +151,17 @@ async function seed() {
           heading: section.heading,
           paragraphs: section.paragraphs,
           bullets: section.bullets ?? [],
+          scenario: section.scenario
+            ? {
+                question: section.scenario.question,
+                steps: section.scenario.steps.map((step, stepIndex) => ({
+                  _key: `step-${stepIndex + 1}`,
+                  _type: "scenarioStep",
+                  title: step.title,
+                  body: step.body,
+                })),
+              }
+            : null,
           callout: section.callout
             ? {
                 title: section.callout.title,
@@ -177,15 +188,29 @@ async function seed() {
     });
   }
 
-  const transaction = client.transaction();
-  for (const doc of docs) transaction.createOrReplace(doc);
-  await transaction.commit();
+  for (let start = 0; start < docs.length; start += 25) {
+    const transaction = client.transaction();
+    for (const doc of docs.slice(start, start + 25)) transaction.createOrReplace(doc);
+    await transaction.commit();
+  }
+
+  // Remove modules, sessions and checks that are no longer in the bundled course.
+  const keep = new Set(docs.map((doc) => doc._id));
+  const existing = await client.fetch(
+    '*[_type in ["courseModule", "session", "knowledgeCheck"] && !(_id in path("drafts.**"))]._id',
+  );
+  const stale = existing.filter((id) => !keep.has(id));
+  if (stale.length > 0) {
+    const cleanup = client.transaction();
+    for (const id of stale) cleanup.delete(id);
+    await cleanup.commit();
+  }
 
   const sessions = prince2Foundation.modules.reduce(
     (total, courseModule) => total + courseModule.sessions.length,
     0,
   );
   console.log(
-    `Seeded Sanity (${projectId}/${dataset}): 1 course, ${prince2Foundation.modules.length} modules, ${sessions} sessions, ${sessions} knowledge checks, ${ARTWORK.length} illustrations.`,
+    `Seeded Sanity (${projectId}/${dataset}): 1 course, ${prince2Foundation.modules.length} modules, ${sessions} sessions, ${sessions} knowledge checks, ${ARTWORK.length} illustrations; removed ${stale.length} stale documents.`,
   );
 }

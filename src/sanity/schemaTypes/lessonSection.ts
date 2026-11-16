@@ -31,6 +31,31 @@ export const lessonSection = defineType({
       of: [{ type: "string" }],
     }),
     defineField({
+      name: "scenario",
+      title: "Scenario carousel",
+      type: "object",
+      description: "A question answered step by step. Learners select the arrow to move through the steps.",
+      fields: [
+        defineField({ name: "question", title: "Question", type: "string" }),
+        defineField({
+          name: "steps",
+          title: "Steps",
+          type: "array",
+          of: [
+            {
+              type: "object",
+              name: "scenarioStep",
+              fields: [
+                defineField({ name: "title", title: "Title", type: "string" }),
+                defineField({ name: "body", title: "Body", type: "text", rows: 3 }),
+              ],
+              preview: { select: { title: "title", subtitle: "body" } },
+            },
+          ],
+        }),
+      ],
+    }),
+    defineField({
       name: "callout",
       title: "Callout",
       type: "object",

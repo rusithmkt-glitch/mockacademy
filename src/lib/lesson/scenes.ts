@@ -5,6 +5,7 @@ import type {
   SceneVariant,
   Session,
 } from "@/data/types";
+import { plainText } from "./inline";
 
 const artPools: Record<SceneVariant, LessonArtKey[]> = {
   foundations: ["principles", "lifecycle", "business-case"],
@@ -38,12 +39,15 @@ export function buildSessionScenes(
   };
 
   const sectionScenes = session.sections.map((section, index) => {
-    const [lead, ...rest] = section.paragraphs;
+    const [lead, ...rest] = section.paragraphs.map(plainText);
     const captions = [
       ...rest,
-      ...(section.bullets ?? []),
+      ...(section.bullets ?? []).map(plainText),
+      ...(section.scenario
+        ? section.scenario.steps.map((step) => plainText(step.body))
+        : []),
       ...(section.callout
-        ? [`${section.callout.title}: ${section.callout.body}`]
+        ? [`${section.callout.title}: ${plainText(section.callout.body)}`]
         : []),
     ];
 

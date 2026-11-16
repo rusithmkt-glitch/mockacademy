@@ -106,20 +106,17 @@ describe("getSessionAssessment", () => {
   });
 
   it("falls back to the legacy knowledge check", () => {
-    const session = course.modules
-      .flatMap((module) => module.sessions)
-      .find((entry) => !entry.assessment);
-    expect(session).toBeDefined();
+    const session = { ...course.modules[0].sessions[0], assessment: undefined };
 
-    const assessment = getSessionAssessment(session!, "Principles");
+    const assessment = getSessionAssessment(session, "Principles");
     expect(assessment).toHaveLength(1);
     expect(assessment[0].type).toBe("single");
     expect(assessment[0].options.map((option) => option.id)).toEqual(
-      session!.knowledgeCheck.options.map((_, index) => "abcdef"[index]),
+      session.knowledgeCheck.options.map((_, index) => "abcdef"[index]),
     );
     expect(assessment[0].correctOptionIds).toEqual([
-      "abcdef"[session!.knowledgeCheck.correctOption],
+      "abcdef"[session.knowledgeCheck.correctOption],
     ]);
-    expect(assessment[0].explanation).toBe(session!.knowledgeCheck.explanation);
+    expect(assessment[0].explanation).toBe(session.knowledgeCheck.explanation);
   });
 });

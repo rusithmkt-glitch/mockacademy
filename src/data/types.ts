@@ -50,11 +50,24 @@ export interface LessonCallout {
   tone: CalloutTone;
 }
 
+export interface ScenarioStep {
+  title?: string;
+  body: string;
+}
+
+/** A "Let's say you..." question answered step by step in a carousel. */
+export interface LessonScenario {
+  question: string;
+  steps: ScenarioStep[];
+}
+
+/** Inline text supports **bold** and *italic* markers. */
 export interface LessonSection {
   id: string;
   heading?: string;
   paragraphs: string[];
   bullets?: string[];
+  scenario?: LessonScenario;
   callout?: LessonCallout;
 }
 

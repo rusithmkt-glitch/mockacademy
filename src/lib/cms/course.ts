@@ -21,11 +21,17 @@ interface CmsCallout {
   tone?: string | null;
 }
 
+interface CmsScenario {
+  question?: string | null;
+  steps?: { title?: string | null; body?: string | null }[] | null;
+}
+
 interface CmsSection {
   id?: string | null;
   heading?: string | null;
   paragraphs?: string[] | null;
   bullets?: string[] | null;
+  scenario?: CmsScenario | null;
   callout?: CmsCallout | null;
 }
 
@@ -135,6 +141,10 @@ const COURSE_BY_SLUG_QUERY = /* groq */ `
           heading,
           "paragraphs": coalesce(paragraphs, []),
           "bullets": coalesce(bullets, []),
+          "scenario": select(
+            defined(scenario.question) && count(scenario.steps) > 0 => scenario{question, "steps": steps[]{title, body}},
+            null
+          ),
           "callout": select(
             defined(callout.title) && defined(callout.body) => callout{title, body, tone},
             null
@@ -226,11 +236,24 @@ function mapSection(raw: CmsSection): LessonSection | null {
         }
       : null;
 
+  const scenarioSteps = (raw.scenario?.steps ?? []).flatMap((step) => {
+    const body = asText(step?.body);
+    if (!body) return [];
+    const title = asText(step?.title);
+    return [title ? { title, body } : { body }];
+  });
+  const scenarioQuestion = asText(raw.scenario?.question);
+  const scenario =
+    scenarioQuestion && scenarioSteps.length > 0
+      ? { question: scenarioQuestion, steps: scenarioSteps }
+      : undefined;
+
   return {
     id: asText(raw.id) || heading.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
     heading: heading || undefined,
     paragraphs,
     bullets: bullets.length > 0 ? bullets : undefined,
+    scenario,
     callout: callout ?? undefined,
   };
 }

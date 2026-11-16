@@ -1,5 +1,7 @@
 import { Check, Info, Lightbulb, Target } from "lucide-react";
 import type { CalloutTone, LessonSection } from "@/data/types";
+import { InlineText } from "@/components/lesson/inline-text";
+import { ScenarioCarousel } from "@/components/lesson/scenario-carousel";
 import { cn } from "@/lib/utils";
 
 const calloutStyles: Record<
@@ -52,7 +54,7 @@ export function LessonSections({ sections }: { sections: LessonSection[] }) {
                   key={paragraph.slice(0, 32)}
                   className="max-w-[68ch] text-pretty text-[0.94rem] leading-[1.85] text-foreground/80"
                 >
-                  {paragraph}
+                  <InlineText text={paragraph} />
                 </p>
               ))}
             </div>
@@ -62,11 +64,15 @@ export function LessonSections({ sections }: { sections: LessonSection[] }) {
                   <li key={bullet} className="flex items-start gap-2.5">
                     <span className="mt-[0.45rem] size-1.5 shrink-0 rounded-full bg-primary" />
                     <span className="text-[0.9rem] leading-relaxed text-foreground/80">
-                      {bullet}
+                      <InlineText text={bullet} />
                     </span>
                   </li>
                 ))}
               </ul>
+            ) : null}
+
+            {section.scenario ? (
+              <ScenarioCarousel scenario={section.scenario} id={section.id} />
             ) : null}
 
             {section.callout && callout && CalloutIcon ? (
@@ -90,7 +96,7 @@ export function LessonSections({ sections }: { sections: LessonSection[] }) {
                     {section.callout.title}
                   </p>
                   <p className="mt-1 text-pretty text-[0.82rem] leading-relaxed text-foreground/70">
-                    {section.callout.body}
+                    <InlineText text={section.callout.body} />
                   </p>
                 </div>
               </aside>
@@ -120,7 +126,7 @@ export function KeyPoints({ points }: { points: string[] }) {
                 <Check className="size-3" strokeWidth={3} aria-hidden="true" />
               </span>
               <span className="text-[0.88rem] leading-relaxed text-white/80">
-                {point}
+                <InlineText text={point} />
               </span>
             </li>
           ))}
