@@ -145,6 +145,8 @@ export interface ExamSet {
   topics: string[];
   free: boolean;
   featured?: boolean;
+  maxAttempts: number;
+  feedbackAttempts: number;
 }
 
 export interface TopicPerformance {

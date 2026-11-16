@@ -17,7 +17,7 @@ const content = {
       "Everything you need to prepare for PRINCE2 Foundation, without a subscription or a sales call.",
     points: [
       "66 illustrated sessions across 13 modules",
-      "Five free full and focused mock papers",
+      "A free mock exam and a random exam simulator",
       "A single syllabus that tracks your progress",
     ],
   },
@@ -76,7 +76,7 @@ export function AuthAside({ mode }: { mode: "login" | "register" }) {
           {[
             { icon: Layers, value: "13", label: "modules" },
             { icon: BookOpen, value: "66", label: "sessions" },
-            { icon: FileText, value: "5", label: "mock papers" },
+            { icon: FileText, value: "2", label: "mock exams" },
             { icon: LockOpen, value: "£0", label: "forever" },
           ].map(({ icon: Icon, value, label }) => (
             <div key={label}>

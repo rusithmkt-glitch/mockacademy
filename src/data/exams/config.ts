@@ -1,85 +1,33 @@
 import type { ExamConfig, ExamTopic } from "@/lib/exam/types";
-import { examQuestionBank } from "./questions";
+import { examTopicModules } from "./build";
+import { foundationMockQuestions } from "./foundation-mock";
+import { simulatorPoolQuestions } from "./simulator-pool";
 
-function idsFor(topic: ExamTopic): string[] {
-  return examQuestionBank
-    .filter((question) => question.topic === topic)
-    .map((question) => question.id);
-}
-
-function slice(topic: ExamTopic, from = 0, to?: number): string[] {
-  return idsFor(topic).slice(from, to);
-}
-
-const defaultPolicy = { formalFromAttempt: 3, scope: "per-exam" } as const;
+export const FOUNDATION_MOCK_ID = "foundation-mock";
+export const EXAM_SIMULATOR_ID = "exam-simulator";
 
 export const examConfigs: Record<string, ExamConfig> = {
-  "mock-a": {
-    examId: "mock-a",
+  [FOUNDATION_MOCK_ID]: {
+    examId: FOUNDATION_MOCK_ID,
     questionCount: 60,
     durationMinutes: 60,
     passMarkPercent: 60,
     selection: {
       mode: "fixed",
-      questionIds: [
-        ...slice("Principles", 0, 12),
-        ...slice("People", 0, 10),
-        ...slice("Practices", 0, 20),
-        ...slice("Processes", 0, 12),
-        ...slice("Project context", 0, 6),
-      ],
+      questionIds: foundationMockQuestions.map((question) => question.id),
     },
-    attemptPolicy: defaultPolicy,
+    attemptPolicy: { formalFromAttempt: 3, scope: "per-exam" },
   },
-  "mock-b": {
-    examId: "mock-b",
-    questionCount: 60,
-    durationMinutes: 60,
-    passMarkPercent: 60,
-    selection: {
-      mode: "fixed",
-      questionIds: [
-        ...slice("Principles", 2, 12),
-        ...slice("People", 0, 10),
-        ...slice("Practices", 2, 20),
-        ...slice("Processes", 0, 12),
-        ...slice("Project context", 0, 10),
-      ],
-    },
-    attemptPolicy: defaultPolicy,
-  },
-  "mock-c": {
-    examId: "mock-c",
+  [EXAM_SIMULATOR_ID]: {
+    examId: EXAM_SIMULATOR_ID,
     questionCount: 60,
     durationMinutes: 60,
     passMarkPercent: 60,
     selection: {
       mode: "random",
-      poolQuestionIds: examQuestionBank.map((question) => question.id),
+      poolQuestionIds: simulatorPoolQuestions.map((question) => question.id),
     },
-    attemptPolicy: defaultPolicy,
-  },
-  "rapid-principles-people": {
-    examId: "rapid-principles-people",
-    questionCount: 20,
-    durationMinutes: 20,
-    passMarkPercent: 60,
-    selection: {
-      mode: "fixed",
-      questionIds: [...slice("Principles", 0, 12), ...slice("People", 0, 8)],
-    },
-    attemptPolicy: defaultPolicy,
-  },
-  "processes-deep-dive": {
-    examId: "processes-deep-dive",
-    questionCount: 30,
-    durationMinutes: 30,
-    passMarkPercent: 60,
-    selection: {
-      mode: "fixed",
-      questionIds: [...slice("Practices", 0, 20), ...slice("Processes", 0, 10)],
-    },
-    attemptPolicy: defaultPolicy,
+    attemptPolicy: { formalFromAttempt: 11, scope: "per-exam" },
   },
 };
 
@@ -87,18 +35,6 @@ export function getExamConfig(examId: string): ExamConfig | undefined {
   return examConfigs[examId];
 }
 
-export const examTopics: ExamTopic[] = [
-  "Principles",
-  "People",
-  "Practices",
-  "Processes",
-  "Project context",
-];
+export const examTopics = Object.keys(examTopicModules) as ExamTopic[];
 
-export const topicModuleMap: Record<string, string> = {
-  Principles: "principles",
-  People: "people",
-  Practices: "business-case",
-  Processes: "starting-and-initiating",
-  "Project context": "tailoring-and-exam-preparation",
-};
+export const topicModuleMap: Record<string, string> = { ...examTopicModules };

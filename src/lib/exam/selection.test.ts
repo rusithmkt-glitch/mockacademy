@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { examConfigs } from "@/data/exams/config";
+import { EXAM_SIMULATOR_ID, FOUNDATION_MOCK_ID, examConfigs } from "@/data/exams/config";
 import { examQuestionById } from "@/data/exams/questions";
 import { selectExamQuestions } from "./selection";
 import type { ExamConfig } from "./types";
@@ -22,7 +22,7 @@ const policy = { formalFromAttempt: 3, scope: "per-exam" } as const;
 
 describe("selectExamQuestions", () => {
   it("returns the fixed paper in the configured order", () => {
-    const config = examConfigs["mock-a"];
+    const config = examConfigs[FOUNDATION_MOCK_ID];
     const selected = selectExamQuestions(config);
 
     expect(selected).toHaveLength(config.questionCount);
@@ -33,7 +33,7 @@ describe("selectExamQuestions", () => {
   });
 
   it("samples a unique subset of the pool for randomised papers", () => {
-    const config = examConfigs["mock-c"];
+    const config = examConfigs[EXAM_SIMULATOR_ID];
     const selected = selectExamQuestions(config, examQuestionById, () => 0.5);
 
     expect(selected).toHaveLength(config.questionCount);
@@ -46,7 +46,7 @@ describe("selectExamQuestions", () => {
   });
 
   it("varies the sample when the random stream changes", () => {
-    const config = examConfigs["mock-c"];
+    const config = examConfigs[EXAM_SIMULATOR_ID];
     const low = selectExamQuestions(config, examQuestionById, () => 0);
     const high = selectExamQuestions(config, examQuestionById, () => 0.999);
 
@@ -63,7 +63,7 @@ describe("selectExamQuestions", () => {
       passMarkPercent: 60,
       selection: {
         mode: "fixed",
-        questionIds: ["q-principles-1", "q-principles-1"],
+        questionIds: ["fm-001", "fm-001"],
       },
       attemptPolicy: policy,
     };
@@ -90,7 +90,7 @@ describe("selectExamQuestions", () => {
       questionCount: 5,
       durationMinutes: 10,
       passMarkPercent: 60,
-      selection: { mode: "fixed", questionIds: ["q-principles-1"] },
+      selection: { mode: "fixed", questionIds: ["fm-001"] },
       attemptPolicy: policy,
     };
 
@@ -105,7 +105,7 @@ describe("selectExamQuestions", () => {
       passMarkPercent: 60,
       selection: {
         mode: "random",
-        poolQuestionIds: ["q-principles-1", "q-principles-1"],
+        poolQuestionIds: ["fm-001", "fm-001"],
       },
       attemptPolicy: policy,
     };
@@ -119,7 +119,7 @@ describe("selectExamQuestions", () => {
       questionCount: 5,
       durationMinutes: 10,
       passMarkPercent: 60,
-      selection: { mode: "random", poolQuestionIds: ["q-principles-1"] },
+      selection: { mode: "random", poolQuestionIds: ["fm-001"] },
       attemptPolicy: policy,
     };
 

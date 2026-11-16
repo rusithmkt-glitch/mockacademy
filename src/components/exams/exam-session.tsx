@@ -23,6 +23,7 @@ import { formatClock } from "@/lib/exam/timer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProgressBar } from "@/components/ui/progress";
+import { PromptStatements, splitPrompt } from "./question-prompt";
 import { cn } from "@/lib/utils";
 
 export interface ExamFeedback {
@@ -195,8 +196,9 @@ export function ExamSession({
             id="exam-question-title"
             className="mt-4 text-pretty font-heading text-[1.22rem] font-semibold leading-relaxed text-foreground sm:text-[1.32rem]"
           >
-            {question.prompt}
+            {splitPrompt(question.prompt).lead}
           </h2>
+          <PromptStatements prompt={question.prompt} />
 
           <fieldset className="mt-5">
             <legend className="sr-only">

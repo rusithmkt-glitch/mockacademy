@@ -488,7 +488,7 @@ export function QuestionManager({
                         </span>
                       ) : null}
                     </div>
-                    <p className="mt-1.5 text-[0.82rem] leading-snug text-foreground">
+                    <p className="mt-1.5 whitespace-pre-line text-[0.82rem] leading-snug text-foreground">
                       {question.prompt}
                     </p>
                     <p className="mt-1 text-[0.66rem] text-muted-foreground">

@@ -1,14 +1,16 @@
 #!/usr/bin/env node
 /**
  * Seeds the published PRINCE2 Foundation papers and question bank into
- * Supabase. Safe to re-run: exam sets are upserted by slug, and a paper is
- * only reseeded while it has no recorded attempts.
+ * Supabase. Safe to re-run: exam sets are upserted by slug, a paper is only
+ * reseeded while it has no recorded attempts, and papers no longer listed are
+ * unpublished (or removed if nobody has sat them).
  *
  * Usage: npm run seed:supabase
  * Requires NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env.local.
  */
 import { createClient } from "@supabase/supabase-js";
 import { examQuestionBank } from "../src/data/exams/questions.ts";
+import { examConfigs } from "../src/data/exams/config.ts";
 import { examSets } from "../src/data/mock-exams.ts";
 
 const url =
@@ -32,48 +34,18 @@ const difficulty = {
   "Rapid revision": "rapid_revision",
 };
 
-const MAX_ATTEMPTS = 3;
-const FEEDBACK_ATTEMPTS = 2;
-
 const bank = new Map(examQuestionBank.map((question) => [question.id, question]));
-const byTopic = (topic) => examQuestionBank.filter((question) => question.topic === topic);
 
-/** Mirrors the paper selection in src/data/exams/config.ts. */
 function selectionFor(examId) {
-  const pick = (topic, from = 0, to) =>
-    byTopic(topic)
-      .slice(from, to)
-      .map((question) => question.id);
-
-  switch (examId) {
-    case "mock-a":
-      return [
-        ...pick("Principles", 0, 12),
-        ...pick("People", 0, 10),
-        ...pick("Practices", 0, 20),
-        ...pick("Processes", 0, 12),
-        ...pick("Project context", 0, 6),
-      ];
-    case "mock-b":
-      return [
-        ...pick("Principles", 2, 12),
-        ...pick("People", 0, 10),
-        ...pick("Practices", 2, 20),
-        ...pick("Processes", 0, 12),
-        ...pick("Project context", 0, 10),
-      ];
-    case "mock-c":
-      return examQuestionBank.map((question) => question.id);
-    case "rapid-principles-people":
-      return [...pick("Principles", 0, 12), ...pick("People", 0, 8)];
-    case "processes-deep-dive":
-      return [...pick("Practices", 0, 20), ...pick("Processes", 0, 10)];
-    default:
-      throw new Error(`No seed selection for ${examId}`);
-  }
+  const config = examConfigs[examId];
+  if (!config) throw new Error(`No exam config for ${examId}`);
+  return config.selection.mode === "fixed"
+    ? { mode: "fixed", ids: config.selection.questionIds }
+    : { mode: "random", ids: config.selection.poolQuestionIds };
 }
 
 async function seedExam(exam) {
+  const selection = selectionFor(exam.id);
   const { data: examRow, error: examError } = await supabase
     .from("exam_sets")
     .upsert(
@@ -84,10 +56,10 @@ async function seedExam(exam) {
         difficulty: difficulty[exam.difficulty] ?? "full_simulation",
         question_count: exam.questionCount,
         duration_minutes: exam.durationMinutes,
-        pass_percent: 60,
-        selection_mode: exam.id === "mock-c" ? "random" : "fixed",
-        max_attempts: MAX_ATTEMPTS,
-        feedback_attempts: FEEDBACK_ATTEMPTS,
+        pass_percent: examConfigs[exam.id].passMarkPercent,
+        selection_mode: selection.mode,
+        max_attempts: exam.maxAttempts,
+        feedback_attempts: exam.feedbackAttempts,
         is_published: true,
         is_free: true,
         is_featured: Boolean(exam.featured),
@@ -117,7 +89,7 @@ async function seedExam(exam) {
     .eq("exam_set_id", examRow.id);
   if (deleteError) throw new Error(`${exam.slug}: ${deleteError.message}`);
 
-  const selected = selectionFor(exam.id).map((id) => bank.get(id));
+  const selected = selection.ids.map((id) => bank.get(id));
   const missing = selected.find((question) => !question);
   if (missing !== undefined) throw new Error(`${exam.slug}: unknown question id`);
 
@@ -157,8 +129,39 @@ async function seedExam(exam) {
   );
 }
 
+async function retireOldPapers() {
+  const current = new Set(examSets.map((exam) => exam.slug));
+  const { data, error } = await supabase.from("exam_sets").select("id, slug");
+  if (error) throw new Error(`exam_sets: ${error.message}`);
+
+  for (const row of data.filter((set) => !current.has(set.slug))) {
+    const { count, error: countError } = await supabase
+      .from("exam_attempts")
+      .select("id", { count: "exact", head: true })
+      .eq("exam_set_id", row.id);
+    if (countError) throw new Error(`${row.slug}: ${countError.message}`);
+
+    if (count > 0) {
+      const { error: hideError } = await supabase
+        .from("exam_sets")
+        .update({ is_published: false, is_featured: false })
+        .eq("id", row.id);
+      if (hideError) throw new Error(`${row.slug}: ${hideError.message}`);
+      console.log(`- ${row.slug}: unpublished, ${count} attempt(s) kept for history`);
+    } else {
+      const { error: deleteError } = await supabase
+        .from("exam_sets")
+        .delete()
+        .eq("id", row.id);
+      if (deleteError) throw new Error(`${row.slug}: ${deleteError.message}`);
+      console.log(`- ${row.slug}: removed`);
+    }
+  }
+}
+
 for (const exam of examSets) {
   await seedExam(exam);
 }
+await retireOldPapers();
 
 console.log("Exam bank seed complete.");

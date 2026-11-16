@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { examConfigs } from "@/data/exams/config";
+import { EXAM_SIMULATOR_ID, FOUNDATION_MOCK_ID, examConfigs } from "@/data/exams/config";
 import { examQuestionBank } from "@/data/exams/questions";
 import { selectPresentedQuestions, toPresentedQuestion } from "./presentation";
 
@@ -26,7 +26,7 @@ describe("toPresentedQuestion", () => {
 
 describe("selectPresentedQuestions", () => {
   it("passes a valid fixed set through unchanged", () => {
-    const config = examConfigs["rapid-principles-people"];
+    const config = examConfigs[FOUNDATION_MOCK_ID];
     const presented = examQuestionBank
       .slice(0, config.questionCount)
       .map(toPresentedQuestion);
@@ -35,7 +35,7 @@ describe("selectPresentedQuestions", () => {
   });
 
   it("rejects a fixed set with the wrong number of questions", () => {
-    const config = examConfigs["rapid-principles-people"];
+    const config = examConfigs[FOUNDATION_MOCK_ID];
     const presented = [toPresentedQuestion(examQuestionBank[0])];
 
     expect(() => selectPresentedQuestions(config, presented)).toThrow(
@@ -44,7 +44,7 @@ describe("selectPresentedQuestions", () => {
   });
 
   it("rejects duplicate questions in a fixed set", () => {
-    const config = examConfigs["rapid-principles-people"];
+    const config = examConfigs[FOUNDATION_MOCK_ID];
     const question = toPresentedQuestion(examQuestionBank[0]);
     const presented = Array.from({ length: config.questionCount }, () => ({
       ...question,
@@ -57,7 +57,7 @@ describe("selectPresentedQuestions", () => {
   });
 
   it("samples unique pool questions for randomised papers", () => {
-    const config = examConfigs["mock-c"];
+    const config = examConfigs[EXAM_SIMULATOR_ID];
     const pool = examQuestionBank.map(toPresentedQuestion);
     const selected = selectPresentedQuestions(config, [], pool, () => 0.5);
 
@@ -68,7 +68,7 @@ describe("selectPresentedQuestions", () => {
   });
 
   it("rejects an undersized random pool", () => {
-    const config = examConfigs["mock-c"];
+    const config = examConfigs[EXAM_SIMULATOR_ID];
     const pool = [toPresentedQuestion(examQuestionBank[0])];
 
     expect(() => selectPresentedQuestions(config, [], pool)).toThrow(

@@ -9,8 +9,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "seed:supabase": "node --env-file-if-exists=.env.local scripts/seed-supabase.mjs",
-    "seed:sanity": "node --env-file-if-exists=.env.local scripts/seed-sanity.mjs"
+    "seed:supabase": "tsx --env-file-if-exists=.env.local scripts/seed-supabase.mjs",
+    "seed:sanity": "tsx --env-file-if-exists=.env.local scripts/seed-sanity.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
@@ -39,6 +39,7 @@
     "eslint-config-next": "16.4.6",
     "shadcn": "^4.23.0",
     "tailwindcss": "4.3.3",
+    "tsx": "^4.23.15",
     "typescript": "^5",
     "vitest": "^3.2.7"
   }

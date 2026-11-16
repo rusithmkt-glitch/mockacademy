@@ -16,19 +16,19 @@ import { BackendSetupNotice } from "@/components/setup/backend-setup-notice";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { examBlueprint } from "@/data/mock-exams";
-import { getExamConfig } from "@/data/exams/config";
+import { FOUNDATION_MOCK_ID, getExamConfig } from "@/data/exams/config";
 import { isSupabaseConfigured } from "@/lib/env";
 import { listPublishedExams } from "@/lib/exams/queries";
 
 export const metadata: Metadata = {
   title: "Free PRINCE2 Foundation mock exams",
   description:
-    "Five free PRINCE2 Foundation mock papers: full 60-question simulations and focused practice sets. Built around the real exam format.",
+    "Two free PRINCE2 7th edition Foundation mock exams: a fixed 60-question paper to track progress and a random exam simulator built around the real format.",
 };
 
 export const instant = false;
 
-const defaultConfig = getExamConfig("mock-a");
+const defaultConfig = getExamConfig(FOUNDATION_MOCK_ID);
 
 const examFormat = [
   { label: "Questions", value: String(defaultConfig?.questionCount ?? 60) },
@@ -42,16 +42,16 @@ const examFormat = [
 
 const tips = [
   {
-    title: "Sit one paper early",
-    body: "A baseline score tells you more than another hour of reading. Take Paper A before you feel ready.",
+    title: "Sit the mock exam early",
+    body: "A baseline score tells you more than another hour of reading. Take the Foundation mock exam before you feel ready, then retake it to see how far you have come.",
   },
   {
     title: "Review every miss",
     body: "The value is in the review. Note the syllabus area behind each wrong answer, not just the correct letter.",
   },
   {
-    title: "Use focused sets last",
-    body: "Save the rapid and deep-dive sets for the final week, once you know which areas need tightening.",
+    title: "Finish with the simulator",
+    body: "Each simulator attempt draws a fresh paper from a larger bank, so you cannot rely on memory. Use it in the final weeks to check you are ready for exam day.",
   },
 ];
 
@@ -97,11 +97,13 @@ export default async function MockExamsPage() {
                 headingLevel="h1"
                 pill="Free exam library"
                 title={
-                  exams.length > 0
-                    ? `${exams.length} ${exams.length === 1 ? "paper" : "papers"}. One clear goal: exam readiness.`
-                    : "Free mock papers. One clear goal: exam readiness."
+                  exams.length === 2
+                    ? "Two free mock exams. One clear goal: exam readiness."
+                    : exams.length > 0
+                      ? `${exams.length} ${exams.length === 1 ? "paper" : "papers"}. One clear goal: exam readiness.`
+                      : "Free mock papers. One clear goal: exam readiness."
                 }
-                description="Full simulations for exam technique, focused sets for targeted revision. Every paper is free and built around the PRINCE2 Foundation syllabus."
+                description="A fixed mock exam to measure your progress and a random simulator that feels like exam day. Both are free and built around the PRINCE2 7th edition Foundation syllabus."
               >
                 <div className="mt-6 flex flex-wrap justify-center gap-2">
                   <Badge tone="lavender">

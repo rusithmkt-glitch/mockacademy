@@ -32,7 +32,7 @@ export function HeroArt() {
                 </span>
                 <div>
                   <p className="text-[0.6rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                    Mock exam · Paper A
+                    Exam simulator
                   </p>
                   <p className="text-sm font-semibold text-foreground">
                     Question 18 of 60

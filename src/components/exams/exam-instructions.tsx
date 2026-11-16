@@ -97,7 +97,9 @@ export function ExamInstructions({
         </h2>
         <p className="mt-2 max-w-[62ch] text-pretty text-[0.86rem] leading-relaxed text-muted-foreground">
           {mode === "study"
-            ? "This practice attempt returns a full answer review, with explanations, as soon as you submit. Use it to learn the syllabus before sitting a formal simulation."
+            ? exam.feedbackAttempts >= exam.maxAttempts
+              ? "Sit it under exam conditions, then get a full answer review, with explanations, as soon as you submit."
+              : "This practice attempt returns a full answer review, with explanations, as soon as you submit. Use it to learn the syllabus before sitting a formal simulation."
             : "This is a formal simulation. You will see your score and topic breakdown after submission; answer explanations are withheld for this attempt."}
         </p>
 
@@ -128,9 +130,15 @@ export function ExamInstructions({
                 How attempts work
               </p>
               <p className="mt-1 text-[0.78rem] leading-relaxed text-foreground/70">
-                Attempts 1–{exam.feedbackAttempts} give immediate feedback. From
-                attempt {formalFrom} the paper becomes a formal simulation with
-                feedback withheld. You have {exam.maxAttempts} attempt
+                {exam.feedbackAttempts >= exam.maxAttempts
+                  ? "Every attempt gives a full answer review, with explanations, after you submit. "
+                  : exam.feedbackAttempts === 0
+                    ? "Every attempt is a formal simulation: you see your score and topic breakdown, but explanations are withheld. "
+                    : `Attempts 1–${exam.feedbackAttempts} give a full answer review after you submit. From attempt ${formalFrom} the paper becomes a formal simulation with explanations withheld. `}
+                {exam.selectionMode === "random"
+                  ? "Each attempt draws a new set of questions from the bank. "
+                  : "The questions stay the same each attempt, so you can measure your progress. "}
+                You have {exam.maxAttempts} attempt
                 {exam.maxAttempts === 1 ? "" : "s"} for this paper, tracked on
                 your account.
               </p>

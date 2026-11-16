@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ProgressBar } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import { PromptStatements, splitPrompt } from "./question-prompt";
 
 export function ExamResults({
   examTitle,
@@ -326,8 +327,9 @@ export function ExamResults({
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-[0.8rem] font-medium leading-snug text-foreground">
-                      {questionIndex + 1}. {question.prompt}
+                      {questionIndex + 1}. {splitPrompt(question.prompt).lead}
                     </span>
+                    <PromptStatements prompt={question.prompt} compact />
                     <span className="mt-0.5 flex flex-wrap items-center gap-2 text-[0.62rem] text-muted-foreground">
                       {question.topic}
                       {response?.flagged ? (

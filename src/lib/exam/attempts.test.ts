@@ -6,20 +6,20 @@ const perExam: AttemptPolicy = { formalFromAttempt: 3, scope: "per-exam" };
 const global: AttemptPolicy = { formalFromAttempt: 3, scope: "global" };
 
 const attempts = [
-  { examId: "mock-a" },
-  { examId: "mock-b" },
-  { examId: "mock-a" },
+  { examId: "foundation-mock" },
+  { examId: "exam-simulator" },
+  { examId: "foundation-mock" },
 ];
 
 describe("getAttemptNumber", () => {
   it("counts prior attempts per exam", () => {
-    expect(getAttemptNumber([], "mock-a", perExam)).toBe(1);
-    expect(getAttemptNumber(attempts, "mock-a", perExam)).toBe(3);
-    expect(getAttemptNumber(attempts, "mock-c", perExam)).toBe(1);
+    expect(getAttemptNumber([], "foundation-mock", perExam)).toBe(1);
+    expect(getAttemptNumber(attempts, "foundation-mock", perExam)).toBe(3);
+    expect(getAttemptNumber(attempts, "future-paper", perExam)).toBe(1);
   });
 
   it("counts all attempts when the policy scope is global", () => {
-    expect(getAttemptNumber(attempts, "mock-c", global)).toBe(4);
+    expect(getAttemptNumber(attempts, "future-paper", global)).toBe(4);
   });
 });
 

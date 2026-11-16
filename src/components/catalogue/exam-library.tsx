@@ -6,6 +6,9 @@ import {
   ArrowUpRight,
   BookOpen,
   FileText,
+  Repeat,
+  Shuffle,
+  Target,
   Timer,
 } from "lucide-react";
 import { BrandMark } from "@/components/logo";
@@ -111,6 +114,12 @@ function ExamTile({ exam, index }: { exam: ExamSummary; index: number }) {
           <MetaChip icon={FileText}>{exam.questionCount} questions</MetaChip>
           <MetaChip icon={Timer}>{exam.durationMinutes} minutes</MetaChip>
           <MetaChip icon={BookOpen}>Closed book</MetaChip>
+          <MetaChip icon={exam.selectionMode === "random" ? Shuffle : Repeat}>
+            {exam.selectionMode === "random"
+              ? "New paper every attempt"
+              : "Same paper every attempt"}
+          </MetaChip>
+          <MetaChip icon={Target}>{exam.passPercent}% to pass</MetaChip>
         </div>
         <p className="mt-3 text-[0.68rem] leading-relaxed text-muted-foreground">
           Covers {exam.topics.join(" · ")}
@@ -155,21 +164,31 @@ export function ExamLibrary({ exams }: { exams: ExamSummary[] }) {
       ? exams
       : exams.filter((exam) => difficultyGroup[exam.difficulty] === active);
 
+  const showFilters =
+    options.filter((option) => option.id !== "all" && option.count > 0).length > 1;
+
   return (
     <>
-      <FilterTabs
-        options={options}
-        value={active}
-        onChange={setActive}
-        label="Filter mock papers"
-      />
-      <p className="sr-only" aria-live="polite">
-        Showing {filtered.length} of {exams.length} papers
-      </p>
+      {showFilters ? (
+        <>
+          <FilterTabs
+            options={options}
+            value={active}
+            onChange={setActive}
+            label="Filter mock papers"
+          />
+          <p className="sr-only" aria-live="polite">
+            Showing {filtered.length} of {exams.length} papers
+          </p>
+        </>
+      ) : null}
 
       <div
         data-reveal
-        className="mt-9 grid items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-3"
+        className={cn(
+          "mt-9 grid items-stretch gap-5 sm:grid-cols-2",
+          exams.length > 2 ? "lg:grid-cols-3" : "mx-auto max-w-4xl",
+        )}
       >
         {filtered.map((exam) => (
           <ExamTile
