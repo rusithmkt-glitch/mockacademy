@@ -194,7 +194,15 @@ export default async function MockExamsPage() {
                   </dl>
                   <p className="mt-3 text-[0.72rem] leading-relaxed text-muted-foreground">
                     Always confirm current exam rules with PeopleCert before
-                    booking. MockAcademy papers are for practice only.
+                    booking. MockAcademy papers are for practice only. New to
+                    the format?{" "}
+                    <Link
+                      href="/guides/prince2-foundation-exam-format-pass-mark"
+                      className="font-semibold text-primary underline-offset-2 hover:underline"
+                    >
+                      Read the exam format guide
+                    </Link>
+                    .
                   </p>
                 </div>
               </details>

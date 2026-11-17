@@ -349,6 +349,7 @@ export function ExamRunner({
     return (
       <ExamResults
         examTitle={submitted.attempt.examTitle}
+        examSlug={submitted.attempt.examSlug}
         result={toExamResult(submitted)}
         attemptNumber={submitted.attempt.attemptNumber}
         mode={toUiMode(submitted.attempt.mode)}

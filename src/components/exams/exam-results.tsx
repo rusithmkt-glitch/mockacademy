@@ -25,9 +25,11 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { ProgressBar } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { PromptStatements, splitPrompt } from "./question-prompt";
+import { ScoreShare } from "./score-share";
 
 export function ExamResults({
   examTitle,
+  examSlug,
   result,
   attemptNumber,
   mode,
@@ -37,6 +39,7 @@ export function ExamResults({
   onRetake,
 }: {
   examTitle: string;
+  examSlug: string;
   result: ExamResult;
   attemptNumber: number;
   mode: AttemptMode;
@@ -149,6 +152,13 @@ export function ExamResults({
           </div>
         </div>
       </section>
+
+      <ScoreShare
+        examTitle={examTitle}
+        examSlug={examSlug}
+        percent={result.percent}
+        passed={result.passed}
+      />
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <section
