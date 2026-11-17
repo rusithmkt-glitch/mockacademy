@@ -51,10 +51,12 @@ export function ExamRunner({
   exam,
   initialState,
   isAuthenticated,
+  participantName = "",
 }: {
   exam: ExamSummary;
   initialState: ExamPageState;
   isAuthenticated: boolean;
+  participantName?: string;
 }) {
   const initialActive =
     initialState.active?.status === "in_progress" ? initialState.active : null;
@@ -350,6 +352,7 @@ export function ExamRunner({
       <ExamResults
         examTitle={submitted.attempt.examTitle}
         examSlug={submitted.attempt.examSlug}
+        participantName={participantName}
         result={toExamResult(submitted)}
         attemptNumber={submitted.attempt.attemptNumber}
         mode={toUiMode(submitted.attempt.mode)}

@@ -36,6 +36,7 @@ export async function GET(request: Request) {
   const percent = Math.min(100, Math.max(0, Number(params.get("percent")) || 0));
   const passed = params.get("passed") === "1";
   const examTitle = examTitles[params.get("exam") ?? ""] ?? examTitles.simulator;
+  const name = (params.get("name") ?? "").trim().slice(0, 40);
 
   const [regular, semibold, extrabold] = await Promise.all([
     loadFont(400),
@@ -161,6 +162,19 @@ export async function GET(request: Request) {
           >
             {examTitle}
           </div>
+          {name ? (
+            <div
+              style={{
+                display: "flex",
+                marginTop: 6,
+                fontSize: 28,
+                fontWeight: 600,
+                color: brand.magenta,
+              }}
+            >
+              {name}
+            </div>
+          ) : null}
           <div style={{ display: "flex", alignItems: "baseline", marginTop: 8 }}>
             <span style={{ fontSize: 150, fontWeight: 800, color: brand.navy, lineHeight: 1.1 }}>
               {percent}%

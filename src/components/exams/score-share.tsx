@@ -12,25 +12,33 @@ function LinkedInMark({ className }: { className?: string }) {
   );
 }
 
-function cardPath(examSlug: string, percent: number, passed: boolean) {
+function cardPath(
+  examSlug: string,
+  percent: number,
+  passed: boolean,
+  name: string,
+) {
   const exam = examSlug.includes("simulator") ? "simulator" : "mock";
-  return `/api/share-card?exam=${exam}&percent=${percent}&passed=${passed ? 1 : 0}`;
+  const nameParam = name ? `&name=${encodeURIComponent(name)}` : "";
+  return `/api/share-card?exam=${exam}&percent=${percent}&passed=${passed ? 1 : 0}${nameParam}`;
 }
 
 export function ScoreShare({
   examTitle,
   examSlug,
+  participantName = "",
   percent,
   passed,
 }: {
   examTitle: string;
   examSlug: string;
+  participantName?: string;
   percent: number;
   passed: boolean;
 }) {
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
-  const src = cardPath(examSlug, percent, passed);
+  const src = cardPath(examSlug, percent, passed, participantName);
   const examUrl = `https://mockacademy.org/mock-exams/${examSlug}`;
 
   async function downloadCard() {

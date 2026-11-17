@@ -151,6 +151,7 @@ export default async function MockExamPage({
               exam={exam}
               initialState={initialState}
               isAuthenticated={Boolean(viewer)}
+              participantName={viewer?.fullName ?? ""}
             />
           </div>
         </div>

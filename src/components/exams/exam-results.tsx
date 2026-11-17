@@ -30,6 +30,7 @@ import { ScoreShare } from "./score-share";
 export function ExamResults({
   examTitle,
   examSlug,
+  participantName = "",
   result,
   attemptNumber,
   mode,
@@ -40,6 +41,7 @@ export function ExamResults({
 }: {
   examTitle: string;
   examSlug: string;
+  participantName?: string;
   result: ExamResult;
   attemptNumber: number;
   mode: AttemptMode;
@@ -156,6 +158,7 @@ export function ExamResults({
       <ScoreShare
         examTitle={examTitle}
         examSlug={examSlug}
+        participantName={participantName}
         percent={result.percent}
         passed={result.passed}
       />
