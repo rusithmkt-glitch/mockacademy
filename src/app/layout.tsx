@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Montserrat } from "next/font/google";
+import { GoogleTags, analyticsEnabled } from "@/components/analytics/google-tags";
+import { ConsentBanner } from "@/components/analytics/consent-banner";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -38,6 +40,9 @@ export const metadata: Metadata = {
     description:
       "Free, realistic PRINCE2 Foundation mock exams and beautifully illustrated lessons.",
   },
+  verification: process.env.NEXT_PUBLIC_GSC_VERIFICATION
+    ? { google: process.env.NEXT_PUBLIC_GSC_VERIFICATION }
+    : undefined,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -47,7 +52,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${montserrat.variable} ${geistMono.variable} h-full`}
     >
       <body className="flex min-h-full flex-col overflow-x-clip bg-background">
+        <GoogleTags />
         {children}
+        {analyticsEnabled ? <ConsentBanner /> : null}
       </body>
     </html>
   );

@@ -4,6 +4,16 @@ const nextConfig: NextConfig = {
   /* config options here */
   cacheComponents: true,
   partialPrefetching: true,
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "mockacademy.vercel.app" }],
+        destination: "https://mockacademy.org/:path*",
+        permanent: true,
+      },
+    ];
+  },
   outputFileTracingIncludes: {
     "/api/share-card": ["./src/app/api/share-card/fonts/**"],
     "/opengraph-image": ["./src/app/api/share-card/fonts/**"],
