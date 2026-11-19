@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { guides } from "@/data/guides";
 import { examSets } from "@/data/mock-exams";
 
-const base = "https://mockacademy.org";
+const base = "https://www.mockacademy.org";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();

@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
       {
         source: "/:path*",
         has: [{ type: "host", value: "mockacademy.vercel.app" }],
-        destination: "https://mockacademy.org/:path*",
+        destination: "https://www.mockacademy.org/:path*",
         permanent: true,
       },
     ];

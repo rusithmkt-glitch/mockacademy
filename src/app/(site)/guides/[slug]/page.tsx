@@ -28,7 +28,7 @@ export async function generateMetadata({
       type: "article",
       title: guide.metaTitle,
       description: guide.description,
-      url: `https://mockacademy.org/guides/${guide.slug}`,
+      url: `https://www.mockacademy.org/guides/${guide.slug}`,
     },
   };
 }
@@ -52,7 +52,7 @@ export default async function GuidePage({
         dateModified: guide.updated,
         author: { "@type": "Organization", name: "MockAcademy" },
         publisher: { "@type": "Organization", name: "MockAcademy" },
-        mainEntityOfPage: `https://mockacademy.org/guides/${guide.slug}`,
+        mainEntityOfPage: `https://www.mockacademy.org/guides/${guide.slug}`,
       },
       {
         "@type": "FAQPage",

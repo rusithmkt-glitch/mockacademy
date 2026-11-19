@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/admin", "/dashboard", "/studio", "/api/"],
     },
-    sitemap: "https://mockacademy.org/sitemap.xml",
+    sitemap: "https://www.mockacademy.org/sitemap.xml",
   };
 }

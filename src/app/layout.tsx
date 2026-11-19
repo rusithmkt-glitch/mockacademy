@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://mockacademy.org"),
+  metadataBase: new URL("https://www.mockacademy.org"),
   title: {
     default: "MockAcademy — Free PRINCE2 Foundation mock exams and lessons",
     template: "%s · MockAcademy",
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_GB",
-    url: "https://mockacademy.org",
+    url: "https://www.mockacademy.org",
     siteName: "MockAcademy",
     title: "MockAcademy — Free PRINCE2 Foundation mock exams and lessons",
     description:

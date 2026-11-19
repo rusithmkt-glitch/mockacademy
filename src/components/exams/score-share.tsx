@@ -39,7 +39,7 @@ export function ScoreShare({
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
   const src = cardPath(examSlug, percent, passed, participantName);
-  const examUrl = `https://mockacademy.org/mock-exams/${examSlug}`;
+  const examUrl = `https://www.mockacademy.org/mock-exams/${examSlug}`;
 
   async function downloadCard() {
     const response = await fetch(src);
