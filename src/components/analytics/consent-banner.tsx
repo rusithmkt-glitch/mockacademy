@@ -26,6 +26,7 @@ const needsChoice = () => window.localStorage.getItem(STORAGE_KEY) === null;
 export function ConsentBanner() {
   const visible = useSyncExternalStore(subscribe, needsChoice, () => false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const finishedRef = useRef(false);
 
   useEffect(() => {
     if (!visible || !cardRef.current) return;
@@ -49,6 +50,8 @@ export function ConsentBanner() {
       consent: granted ? "granted" : "denied",
     });
     const finish = () => {
+      if (finishedRef.current) return;
+      finishedRef.current = true;
       window.localStorage.setItem(STORAGE_KEY, granted ? "granted" : "denied");
       window.dispatchEvent(new Event(CHANGE_EVENT));
     };
@@ -63,6 +66,8 @@ export function ConsentBanner() {
       ease: "power2.in",
       onComplete: finish,
     });
+    // Hidden tabs pause GSAP's ticker; persist the choice regardless.
+    window.setTimeout(finish, 600);
   }
 
   if (!visible) return null;
