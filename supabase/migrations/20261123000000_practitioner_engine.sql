@@ -27,6 +27,9 @@ alter table public.exam_questions
 create index exam_questions_kind_idx on public.exam_questions (exam_set_id, kind);
 
 -- A stem may have exactly one correct option within a question.
+alter table public.exam_options
+  add column matches_stem_id text;
+
 create unique index exam_options_stem_unique_idx
   on public.exam_options (question_id, matches_stem_id)
   where matches_stem_id is not null;

@@ -3,14 +3,22 @@ import Link from "next/link";
 import {
   ArrowRight,
   BookOpen,
+  Check,
   Clock3,
   Layers,
+  Sparkles,
+  Target,
 } from "lucide-react";
 import { SiteFooter } from "@/components/site-footer";
 import { CtaBand } from "@/components/cta-band";
 import { PageMotion } from "@/components/motion/page-motion";
 import { CourseCard } from "@/components/course-card";
 import { CatalogueIntro } from "@/components/catalogue/catalogue-intro";
+import {
+  ModuleCatalogue,
+  type ModuleCatalogueItem,
+} from "@/components/catalogue/module-catalogue";
+import { SectionHeading } from "@/components/section-heading";
 import { Badge } from "@/components/ui/badge";
 import { ProgressBar } from "@/components/ui/progress";
 import { buttonVariants } from "@/components/ui/button";
@@ -22,6 +30,7 @@ import {
   formatDuration,
   getAllSessions,
   getCourseStats,
+  getModuleDuration,
   getProgressPercent,
   getResumeSession,
 } from "@/lib/course";
@@ -127,6 +136,29 @@ function CoursePickerPanel({
   );
 }
 
+function buildModuleItems(
+  course: Course,
+  completedSessionIds: string[],
+): ModuleCatalogueItem[] {
+  return course.modules.map((module) => {
+    const completedSessions = module.sessions.filter((session) =>
+      completedSessionIds.includes(session.id),
+    ).length;
+
+    return {
+      id: module.id,
+      order: module.order,
+      title: module.title,
+      tagline: module.tagline,
+      href: `/learning/${course.slug}/${module.slug}/${module.sessions[0].slug}`,
+      sessionCount: module.sessions.length,
+      durationLabel: formatDuration(getModuleDuration(module)),
+      completedSessions,
+      percent: getProgressPercent(completedSessions, module.sessions.length),
+    };
+  });
+}
+
 export default async function LearningPage() {
   await connection();
   const viewer = await getViewer();
@@ -168,6 +200,8 @@ export default async function LearningPage() {
   );
 
   const completed = foundationCompleted.length;
+  const foundationStats = getCourseStats(foundation);
+  const percent = getProgressPercent(completed, foundationStats.sessionCount);
   const resume = getResumeSession(foundationCompleted, foundation);
   const resumeHref = `/learning/${foundation.slug}/${resume.module.slug}/${resume.session.slug}`;
   const signedIn = Boolean(viewer);
@@ -284,6 +318,116 @@ export default async function LearningPage() {
           </div>
         </section>
 
+        <section className="shell pt-16 lg:pt-20">
+          <CatalogueIntro
+            pill="Foundation learning path"
+            title={`${foundationStats.moduleCount} modules, built in the right order.`}
+            description="Start with the principles and context, then follow the project lifecycle from start-up to closure. Filter by where you are."
+          />
+          <ModuleCatalogue
+            modules={buildModuleItems(foundation, foundationCompleted)}
+          />
+        </section>
+
+        {practitioner ? (
+          <section className="shell py-16 lg:py-20">
+            <CatalogueIntro
+              pill="Practitioner learning path"
+              title={`${getCourseStats(practitioner).moduleCount} modules, scenario-first.`}
+              description="Apply the method the way the Practitioner exam expects: work the Fern & Flour scenario from business case to closure, then rehearse the open-book technique."
+            />
+            <ModuleCatalogue
+              modules={buildModuleItems(practitioner, practitionerCompleted)}
+            />
+          </section>
+        ) : (
+          <div className="pb-16 lg:pb-20" />
+        )}
+
+        <section className="border-y border-border/70 bg-card">
+          <div className="shell grid gap-10 py-16 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14 lg:py-20">
+            <div>
+              <SectionHeading
+                eyebrow="Learning objectives"
+                title="What you'll be able to do."
+                description="By the end of the Foundation course, you should be able to explain and apply the full syllabus with confidence."
+              />
+              <ul className="mt-8 grid gap-x-8 gap-y-3.5 sm:grid-cols-2">
+                {foundation.outcomes.map((outcome) => (
+                  <li key={outcome} className="flex items-start gap-2.5">
+                    <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-accent text-primary">
+                      <Check className="size-3" strokeWidth={3} aria-hidden="true" />
+                    </span>
+                    <span className="text-[0.85rem] leading-relaxed text-foreground/80">
+                      {outcome}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-8 flex flex-wrap gap-4 text-[0.75rem] text-muted-foreground">
+                <span className="inline-flex items-center gap-1.5">
+                  <Layers className="size-3.5 text-primary" aria-hidden="true" />
+                  {foundationStats.moduleCount} modules
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <Clock3 className="size-3.5 text-primary" aria-hidden="true" />
+                  {formatDuration(foundationStats.durationMinutes)} of lessons
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <Sparkles className="size-3.5 text-primary" aria-hidden="true" />
+                  {foundationStats.sessionCount} knowledge checks
+                </span>
+              </div>
+            </div>
+
+            <div className="relative overflow-hidden rounded-3xl bg-navy p-7 text-white shadow-lift sm:p-8">
+              <div aria-hidden="true" className="dot-grid absolute inset-0 opacity-[0.14]" />
+              <div className="relative">
+                <div className="flex items-center justify-between">
+                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-white/50">
+                    Continue learning
+                  </p>
+                  <Target className="size-5 text-gold" aria-hidden="true" />
+                </div>
+                <p className="mt-5 font-heading text-2xl leading-tight">
+                  {resume.session.title}
+                </p>
+                <p className="mt-1.5 text-[0.8rem] text-white/55">
+                  Module {resume.module.order} · {resume.module.title}
+                </p>
+
+                <div className="mt-6">
+                  <div className="flex items-center justify-between text-[0.72rem]">
+                    <span className="text-white/55">Course progress</span>
+                    <span className="font-medium">{percent}%</span>
+                  </div>
+                  <ProgressBar
+                    value={percent}
+                    className="mt-2 h-1.5 bg-white/15"
+                    label="Course progress"
+                  />
+                  <p className="mt-2 text-[0.68rem] text-white/40">
+                    {signedIn
+                      ? `${completed} of ${foundationStats.sessionCount} sessions complete`
+                      : "Sign in to save your progress"}
+                  </p>
+                </div>
+
+                <Link
+                  href={resumeHref}
+                  className={buttonVariants({
+                    variant: "inverse",
+                    size: "cta",
+                    className: "mt-6 w-full",
+                  })}
+                >
+                  Resume lesson
+                  <ArrowRight className="size-4" aria-hidden="true" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
 
         <CtaBand
           title="Learn the method. Then test it for real."
