@@ -10,11 +10,12 @@ export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
   // PPR commits a 200 shell before a route can call notFound(), so unknown
-  // course slugs must be rejected here instead. "/404" matches no route, so
-  // Next renders the not-found page with a real 404 status.
+  // course slugs must be rejected here instead. The rewrite target must match
+  // no route: in production builds "/404" serves the static not-found page
+  // with a 200, so use an unmatched path and let Next answer with 404.
   const learningSlug = path.match(/^\/learning\/([^/?]+)/)?.[1];
   if (learningSlug && !learningCourseSlugs.has(learningSlug)) {
-    return NextResponse.rewrite(new URL("/404", request.url));
+    return NextResponse.rewrite(new URL("/missing-page", request.url));
   }
 
   if (!isSupabaseConfigured()) {
