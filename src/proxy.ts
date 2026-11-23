@@ -1,10 +1,22 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { isSupabaseConfigured, supabaseEnv } from "@/lib/env";
+import { courses } from "@/data/courses";
 
 const protectedPrefixes = ["/dashboard", "/admin"];
+const learningCourseSlugs = new Set(Object.keys(courses));
 
 export async function proxy(request: NextRequest) {
+  const path = request.nextUrl.pathname;
+
+  // PPR commits a 200 shell before a route can call notFound(), so unknown
+  // course slugs must be rejected here instead. "/404" matches no route, so
+  // Next renders the not-found page with a real 404 status.
+  const learningSlug = path.match(/^\/learning\/([^/?]+)/)?.[1];
+  if (learningSlug && !learningCourseSlugs.has(learningSlug)) {
+    return NextResponse.rewrite(new URL("/404", request.url));
+  }
+
   if (!isSupabaseConfigured()) {
     return NextResponse.next();
   }
@@ -36,7 +48,6 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const path = request.nextUrl.pathname;
   const isProtected = protectedPrefixes.some((prefix) =>
     path.startsWith(prefix),
   );

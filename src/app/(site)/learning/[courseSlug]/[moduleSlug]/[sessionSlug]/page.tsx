@@ -11,12 +11,14 @@ import { ScenePlayer } from "@/components/learning/scene-player";
 import { KnowledgeCheck } from "@/components/learning/knowledge-check";
 import { getViewer } from "@/lib/auth/session";
 import { loadCourse } from "@/lib/course-source";
+import { courses } from "@/data/courses";
 import { getAllSessionRefs } from "@/lib/course";
 import { getSessionAssessment } from "@/lib/lesson/assessment";
 import { buildSessionScenes } from "@/lib/lesson/scenes";
 import { getCompletedSessionIds } from "@/lib/progress/queries";
 
 type Params = {
+  courseSlug: string;
   moduleSlug: string;
   sessionSlug: string;
 };
@@ -26,15 +28,16 @@ export async function generateMetadata({
 }: {
   params: Promise<Params>;
 }): Promise<Metadata> {
-  const { moduleSlug, sessionSlug } = await params;
-  const course = await loadCourse();
+  const { courseSlug, moduleSlug, sessionSlug } = await params;
+  const course = await loadCourse(courseSlug);
+  if (!course) notFound();
   const courseModule = course.modules.find(
     (module) => module.slug === moduleSlug,
   );
   const session = courseModule?.sessions.find(
     (item) => item.slug === sessionSlug,
   );
-  if (!courseModule || !session) return {};
+  if (!courseModule || !session) notFound();
   return {
     title: `${session.title} · ${courseModule.shortTitle}`,
     description: session.summary,
@@ -44,15 +47,30 @@ export async function generateMetadata({
 // Lesson content is entirely URL-dependent, so allow a blocking navigation.
 export const instant = false;
 
+// Unknown course/module/session slugs must hard-404, not soft-404 in a shell.
+export function generateStaticParams() {
+  return Object.values(courses).flatMap((entry) =>
+    entry.course.modules.flatMap((module) =>
+      module.sessions.map((session) => ({
+        courseSlug: entry.course.slug,
+        moduleSlug: module.slug,
+        sessionSlug: session.slug,
+      })),
+    ),
+  );
+}
+
 export default async function LessonPage({
   params,
 }: {
   params: Promise<Params>;
 }) {
-  const { moduleSlug, sessionSlug } = await params;
+  const { courseSlug, moduleSlug, sessionSlug } = await params;
   await connection();
 
-  const [course, viewer] = await Promise.all([loadCourse(), getViewer()]);
+  const course = await loadCourse(courseSlug);
+  if (!course) notFound();
+  const viewer = await getViewer();
   const refs = getAllSessionRefs(course);
   const index = refs.findIndex(
     (ref) => ref.module.slug === moduleSlug && ref.session.slug === sessionSlug,
@@ -69,12 +87,12 @@ export default async function LessonPage({
       : buildSessionScenes(session, module);
   const assessment = getSessionAssessment(session, module.shortTitle);
   const nextHref = next
-    ? `/learning/prince2-foundation/${next.module.slug}/${next.session.slug}`
+    ? `/learning/${course.slug}/${next.module.slug}/${next.session.slug}`
     : null;
 
-  const completedIds = await getCompletedSessionIds(viewer);
+  const completedIds = await getCompletedSessionIds(viewer, course.slug);
   const signedIn = Boolean(viewer);
-  const lessonPath = `/learning/prince2-foundation/${module.slug}/${session.slug}`;
+  const lessonPath = `/learning/${course.slug}/${module.slug}/${session.slug}`;
 
   return (
     <main id="main" className="min-w-0">
@@ -93,10 +111,10 @@ export default async function LessonPage({
             <li aria-hidden="true">/</li>
             <li>
               <Link
-                href="/learning/prince2-foundation"
+                href={`/learning/${course.slug}`}
                 className="transition-colors hover:text-foreground"
               >
-                PRINCE2 Foundation
+                {course.shortTitle}
               </Link>
             </li>
             <li aria-hidden="true">/</li>
@@ -179,7 +197,11 @@ export default async function LessonPage({
           completed={completedIds.includes(session.id)}
         />
 
-        <LessonNavigation previous={previous} next={next} />
+        <LessonNavigation
+          previous={previous}
+          next={next}
+          courseSlug={course.slug}
+        />
 
         <p className="mt-8 text-[0.65rem] leading-relaxed text-muted-foreground">
           PRINCE2® is a registered trademark of the PeopleCert group.

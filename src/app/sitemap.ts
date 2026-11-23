@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { guides } from "@/data/guides";
 import { examSets } from "@/data/mock-exams";
+import { courses } from "@/data/courses";
 
 const base = "https://www.mockacademy.org";
 
@@ -9,7 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes = [
     "",
     "/learning",
-    "/learning/prince2-foundation",
+    ...Object.keys(courses).map((slug) => `/learning/${slug}`),
     "/mock-exams",
     "/guides",
     "/register",

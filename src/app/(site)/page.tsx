@@ -479,6 +479,33 @@ export default function HomePage() {
               />
             ))}
           </div>
+
+          <div className="mt-6 flex flex-col items-start justify-between gap-5 rounded-3xl bg-navy p-6 text-white shadow-lift sm:flex-row sm:items-center sm:p-7">
+            <div>
+              <p className="text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-gold">
+                New
+              </p>
+              <h3 className="mt-1.5 font-heading text-xl leading-tight sm:text-2xl">
+                PRINCE2® Practitioner, taught the same way.
+              </h3>
+              <p className="mt-2 max-w-xl text-[0.82rem] leading-relaxed text-white/60">
+                Modules for the 68-mark open-book paper: scenario reading,
+                weighted judgements and matching questions, with a full free
+                mock exam to sit.
+              </p>
+            </div>
+            <Link
+              href="/learning/prince2-practitioner"
+              className={buttonVariants({
+                variant: "inverse",
+                size: "cta",
+                className: "shrink-0",
+              })}
+            >
+              Open the Practitioner course
+              <ArrowRight className="size-4" aria-hidden="true" />
+            </Link>
+          </div>
         </section>
 
         {/* Benefits */}

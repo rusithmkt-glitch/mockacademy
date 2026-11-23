@@ -150,6 +150,95 @@ describe("scoreExam", () => {
   });
 });
 
+describe("matching and weighted items", () => {
+  const matchQuestion: ExamQuestion = {
+    id: "mq1",
+    topic: "Risks",
+    moduleId: "m9",
+    prompt: "Match each situation to a response.",
+    options: ["a", "b", "c"].map((optionId) => ({
+      id: optionId,
+      label: `Option ${optionId}`,
+    })),
+    correctOptionId: "",
+    explanation: "Because.",
+    kind: "match",
+    marks: 3,
+    stems: [
+      { id: "s1", label: "First", correctOptionId: "a" },
+      { id: "s2", label: "Second", correctOptionId: "b" },
+      { id: "s3", label: "Third", correctOptionId: "c" },
+    ],
+  };
+
+  function scoreMatch(selectedByStem: Record<string, string>) {
+    return scoreExam({
+      examId: "prac",
+      examTitle: "Practitioner paper",
+      questions: [makeQuestion("q1", "Principles"), matchQuestion],
+      responses: [
+        {
+          questionId: "q1",
+          selectedOptionIds: ["a"],
+          flagged: false,
+        },
+        {
+          questionId: "mq1",
+          selectedOptionIds: [...new Set(Object.values(selectedByStem))],
+          flagged: false,
+          selectedByStem,
+        },
+      ],
+      passMarkPercent: 60,
+      passMark: 4,
+      durationUsedSeconds: 60,
+      completedAt: "2026-11-23T10:00:00.000Z",
+    });
+  }
+
+  it("awards one mark per correct stem", () => {
+    const result = scoreMatch({ s1: "a", s2: "c", s3: "c" });
+
+    expect(result.score).toBe(3); // q1 + s1 + s3
+    expect(result.total).toBe(4); // 1 mark + 3 marks
+    expect(result.percent).toBe(75);
+  });
+
+  it("scores a fully correct matching item at full marks", () => {
+    const result = scoreMatch({ s1: "a", s2: "b", s3: "c" });
+
+    expect(result.score).toBe(4);
+    expect(result.unanswered).toBe(0);
+    expect(result.passed).toBe(true);
+  });
+
+  it("prefers the absolute pass mark over the percentage", () => {
+    const result = scoreMatch({ s1: "a", s2: "b", s3: "z" });
+
+    expect(result.score).toBe(3);
+    expect(result.passed).toBe(false); // 75% would pass, 3 < passMark 4 does not
+    expect(result.passMark).toBe(4);
+  });
+
+  it("reports topic totals in marks", () => {
+    const result = scoreMatch({ s1: "a", s2: "b", s3: "z" });
+
+    const risks = result.topics.find((topic) => topic.topic === "Risks");
+    expect(risks).toEqual({
+      topic: "Risks",
+      correct: 2,
+      total: 3,
+      percent: 67,
+    });
+  });
+
+  it("falls back to the percentage rule when no pass mark is set", () => {
+    expect(passThreshold(68, 55, 38)).toBe(38);
+    expect(passThreshold(68, 55)).toBe(38);
+    expect(passThreshold(60, 60, undefined)).toBe(36);
+  });
+});
+
 describe("review helpers", () => {
   it("returns the correct option for a question", () => {
     expect(getCorrectOption(questions[1])).toEqual({

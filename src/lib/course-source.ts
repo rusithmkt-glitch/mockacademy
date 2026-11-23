@@ -1,18 +1,21 @@
 import { cache } from "react";
 import type { Course } from "@/data/types";
 import { getPublishedCourse } from "@/lib/cms/course";
-import { course as localCourse } from "@/lib/course";
+import { getCourseBySlug, courses } from "@/data/courses";
 
 export const DEFAULT_COURSE_SLUG = "prince2-foundation";
 
+export const COURSE_SLUGS = Object.keys(courses);
+
 /**
- * Published CMS content wins. The bundled course data is only a fallback for
- * local development before Sanity credentials exist, so the learning engine
- * never renders an empty syllabus.
+ * Published CMS content wins. Bundled registry data is the fallback so the
+ * learning engine renders without Sanity credentials and so CMS-less courses
+ * (like the practitioner syllabus) still resolve by slug.
  */
 export const loadCourse = cache(
-  async (slug: string = DEFAULT_COURSE_SLUG): Promise<Course> => {
+  async (slug: string = DEFAULT_COURSE_SLUG): Promise<Course | undefined> => {
     const published = await getPublishedCourse(slug);
-    return published && published.modules.length > 0 ? published : localCourse;
+    if (published && published.modules.length > 0) return published;
+    return getCourseBySlug(slug);
   },
 );

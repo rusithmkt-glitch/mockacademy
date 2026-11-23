@@ -1,9 +1,12 @@
-import type { PresentedQuestion } from "@/lib/exam/presentation";
+import type {
+  PresentedQuestion,
+} from "@/lib/exam/presentation";
 import type { ResponseMap } from "@/lib/exam/responses";
 import type { AttemptMode, ExamResult, TopicResult } from "@/lib/exam/types";
 import type {
   AttemptQuestionView,
   DbExamMode,
+  ReviewQuestionView,
   SubmittedAttemptPayload,
 } from "./types";
 
@@ -20,6 +23,9 @@ export function toPresentedQuestions(
     moduleId: "",
     prompt: question.prompt,
     options: question.options.map((option) => ({ ...option })),
+    kind: question.kind ?? "single",
+    marks: question.marks ?? question.stems?.length ?? 1,
+    stems: (question.stems ?? []).map((stem) => ({ ...stem })),
   }));
 }
 
@@ -30,6 +36,7 @@ export function toResponseMap(questions: AttemptQuestionView[]): ResponseMap {
       {
         selectedOptionIds: [...question.selectedOptionIds],
         flagged: question.flagged,
+        selectedByStem: { ...(question.selectedByStem ?? {}) },
       },
     ]),
   );
@@ -54,6 +61,7 @@ export function toExamResult(
     questionId: question.questionId,
     selectedOptionIds: [...question.selectedOptionIds],
     flagged: question.flagged,
+    selectedByStem: { ...(question.selectedByStem ?? {}) },
   }));
   const unanswered = responses.filter(
     (response) => response.selectedOptionIds.length === 0,
@@ -76,6 +84,7 @@ export function toExamResult(
     total: result.total,
     percent: result.percent,
     passMarkPercent: result.passPercent,
+    passMark: result.passMark ?? undefined,
     passed: result.passed,
     durationUsedSeconds,
     completedAt: attempt.submittedAt ?? attempt.serverTime,
@@ -84,16 +93,40 @@ export function toExamResult(
   };
 }
 
+export interface ReviewEntry {
+  kind: "single" | "match";
+  marks: number;
+  stems: (ReviewQuestionView["stems"][number] & {
+    selectedOptionId?: string;
+    correctOptionId?: string;
+  })[];
+  correctOptionId: string;
+  explanation: string;
+  isCorrect: boolean;
+}
+
 export function toReviewMap(
   payload: SubmittedAttemptPayload,
-): Record<string, { correctOptionId: string; explanation: string }> {
+): Record<string, ReviewEntry> {
   return Object.fromEntries(
-    payload.review.map((question) => [
-      question.questionId,
-      {
-        correctOptionId: question.correctOptionIds[0] ?? "",
-        explanation: question.explanation,
-      },
-    ]),
+    payload.review.map((question) => {
+      const correctByStem = question.correctByStem ?? {};
+      const selectedByStem = question.selectedByStem ?? {};
+      return [
+        question.questionId,
+        {
+          kind: question.kind ?? "single",
+          marks: question.marks ?? 1,
+          stems: (question.stems ?? []).map((stem) => ({
+            ...stem,
+            selectedOptionId: selectedByStem[stem.id],
+            correctOptionId: correctByStem[stem.id],
+          })),
+          correctOptionId: question.correctOptionIds[0] ?? "",
+          explanation: question.explanation,
+          isCorrect: question.isCorrect,
+        },
+      ];
+    }),
   );
 }

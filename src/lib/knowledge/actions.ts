@@ -3,7 +3,8 @@
 import { getViewer } from "@/lib/auth/session";
 import { isSupabaseAdminConfigured } from "@/lib/env";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { DEFAULT_COURSE_SLUG, loadCourse } from "@/lib/course-source";
+import { courses } from "@/data/courses";
+import type { CourseModule, Session } from "@/data/types";
 import { getSessionAssessment, scoreAssessment } from "@/lib/lesson/assessment";
 
 export interface KnowledgeCheckOutcome {
@@ -70,10 +71,22 @@ export async function submitKnowledgeCheckAction(input: {
     return { ok: false, error: "That submission could not be read. Try again." };
   }
 
-  const course = await loadCourse(DEFAULT_COURSE_SLUG);
-  const ref = course.modules
-    .flatMap((module) => module.sessions.map((session) => ({ module, session })))
-    .find((item) => item.session.id === input.sessionKey);
+  // Session keys are module-namespaced and unique per registered course,
+  // so the owning course slug is resolved from the registry itself.
+  let ref: { courseSlug: string; module: CourseModule; session: Session } | null =
+    null;
+  for (const [slug, entry] of Object.entries(courses)) {
+    for (const courseModule of entry.course.modules) {
+      const session = courseModule.sessions.find(
+        (item) => item.id === input.sessionKey,
+      );
+      if (session) {
+        ref = { courseSlug: slug, module: courseModule, session };
+        break;
+      }
+    }
+    if (ref) break;
+  }
 
   if (!ref) return { ok: false, error: COURSE_UNAVAILABLE };
 
@@ -100,7 +113,7 @@ export async function submitKnowledgeCheckAction(input: {
     const admin = createSupabaseAdminClient();
     const { data, error } = await admin.rpc("record_knowledge_check", {
       p_user_id: viewer.id,
-      p_course_slug: DEFAULT_COURSE_SLUG,
+      p_course_slug: ref.courseSlug,
       p_session_key: ref.session.id,
       p_answers: scored.results.map((result) => ({
         questionId: result.questionId,

@@ -19,9 +19,14 @@ interface ExamRow {
   title: string;
   description: string;
   difficulty: keyof typeof DIFFICULTY_LABELS;
+  certification: string;
+  level: string;
   question_count: number;
+  total_marks: number | null;
   duration_minutes: number;
   pass_percent: number;
+  pass_mark: number | null;
+  is_open_book: boolean;
   selection_mode: "fixed" | "random";
   max_attempts: number;
   feedback_attempts: number;
@@ -37,9 +42,14 @@ function toExamSummary(row: ExamRow): ExamSummary {
     title: row.title,
     description: row.description,
     difficulty: DIFFICULTY_LABELS[row.difficulty] ?? "Full simulation",
+    certification: row.certification,
+    level: row.level,
     questionCount: row.question_count,
+    totalMarks: row.total_marks ?? row.question_count,
     durationMinutes: row.duration_minutes,
     passPercent: row.pass_percent,
+    passMark: row.pass_mark,
+    isOpenBook: row.is_open_book,
     selectionMode: row.selection_mode,
     maxAttempts: row.max_attempts,
     feedbackAttempts: row.feedback_attempts,
@@ -50,7 +60,7 @@ function toExamSummary(row: ExamRow): ExamSummary {
 }
 
 const EXAM_COLUMNS =
-  "id, slug, title, description, difficulty, question_count, duration_minutes, pass_percent, selection_mode, max_attempts, feedback_attempts, is_free, is_featured, topics";
+  "id, slug, title, description, difficulty, certification, level, question_count, total_marks, duration_minutes, pass_percent, pass_mark, is_open_book, selection_mode, max_attempts, feedback_attempts, is_free, is_featured, topics";
 
 export async function listPublishedExams(): Promise<ExamSummary[]> {
   if (!isSupabaseConfigured()) return [];

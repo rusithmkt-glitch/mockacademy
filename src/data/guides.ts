@@ -31,7 +31,7 @@ export const guides: Guide[] = [
       "Sit a free PRINCE2 7th edition Foundation mock exam: 60 questions, 60 minutes, 60% pass mark. A fixed paper to track progress plus a random exam simulator.",
     intro: [
       "The fastest way to find out whether you are ready for the PRINCE2 Foundation exam is to sit a full paper under exam conditions. Reading feels productive; a timed mock tells you the truth.",
-      "MockAcademy offers two free papers built around the PRINCE2 7th edition Foundation syllabus. No payment, no trial, no card — just create a free account and start.",
+      "MockAcademy offers two free papers built around the PRINCE2 7th edition Foundation syllabus, plus an open-book Practitioner paper built around a project scenario. No payment, no trial, no card — just create a free account and start.",
     ],
     sections: [
       {
@@ -41,7 +41,7 @@ export const guides: Guide[] = [
           "The Foundation Exam Simulator draws 60 questions at random from a bank of 120 on every attempt. You cannot pass it from memory, which makes it the closer check of exam readiness in your final weeks.",
         ],
         bullets: [
-          "Both papers: 60 multiple-choice questions, 60 minutes, 60% to pass, closed book.",
+          "Foundation papers: 60 multiple-choice questions, 60 minutes, 60% to pass, closed book. The Practitioner paper is 56 items worth 68 marks in 2 hours 30, open book, pass at 38 marks.",
           "Questions are original practice items written around the 7th edition syllabus — not copies of live exam questions.",
           "Answers save as you go, the timer runs on the server, and scoring happens securely after you submit.",
         ],
@@ -63,7 +63,7 @@ export const guides: Guide[] = [
       {
         question: "Is the mock exam really free?",
         answer:
-          "Yes. Both papers are free with a MockAcademy account, which is also free. There is no card requirement and no trial period.",
+          "Yes. Every paper — Foundation and Practitioner — is free with a MockAcademy account, which is also free. There is no card requirement and no trial period.",
       },
       {
         question: "Are these real PeopleCert exam questions?",

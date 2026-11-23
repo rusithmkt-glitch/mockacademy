@@ -12,15 +12,19 @@ function LinkedInMark({ className }: { className?: string }) {
   );
 }
 
+function cardExamKey(examSlug: string) {
+  if (examSlug.includes("practitioner")) return "practitioner";
+  return examSlug.includes("simulator") ? "simulator" : "mock";
+}
+
 function cardPath(
   examSlug: string,
   percent: number,
   passed: boolean,
   name: string,
 ) {
-  const exam = examSlug.includes("simulator") ? "simulator" : "mock";
   const nameParam = name ? `&name=${encodeURIComponent(name)}` : "";
-  return `/api/share-card?exam=${exam}&percent=${percent}&passed=${passed ? 1 : 0}${nameParam}`;
+  return `/api/share-card?exam=${cardExamKey(examSlug)}&percent=${percent}&passed=${passed ? 1 : 0}${nameParam}`;
 }
 
 export function ScoreShare({
@@ -40,6 +44,7 @@ export function ScoreShare({
   const [note, setNote] = useState<string | null>(null);
   const src = cardPath(examSlug, percent, passed, participantName);
   const examUrl = `https://www.mockacademy.org/mock-exams/${examSlug}`;
+  const level = examSlug.includes("practitioner") ? "Practitioner" : "Foundation";
 
   async function downloadCard() {
     const response = await fetch(src);
@@ -60,8 +65,8 @@ export function ScoreShare({
       const blob = await downloadCard();
       const file = new File([blob], "mockacademy-result.png", { type: "image/png" });
       const text = passed
-        ? `I scored ${percent}% on the free ${examTitle} at MockAcademy — above the PRINCE2 Foundation pass mark. Sit it yourself:`
-        : `Prepping for PRINCE2 Foundation with the free ${examTitle} at MockAcademy — ${percent}% this time, improving every attempt. Sit it yourself:`;
+        ? `I scored ${percent}% on the free ${examTitle} at MockAcademy — above the PRINCE2 ${level} pass mark. Sit it yourself:`
+        : `Prepping for PRINCE2 ${level} with the free ${examTitle} at MockAcademy — ${percent}% this time, improving every attempt. Sit it yourself:`;
       if (navigator.canShare?.({ files: [file] })) {
         await navigator.share({ files: [file], text, url: examUrl });
       } else {

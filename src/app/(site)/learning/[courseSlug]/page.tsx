@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import {
   ArrowRight,
   BookOpen,
@@ -21,6 +22,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { connection } from "next/server";
 import { getViewer } from "@/lib/auth/session";
 import { loadCourse } from "@/lib/course-source";
+import { courses } from "@/data/courses";
 import {
   formatDuration,
   getCourseStats,
@@ -28,20 +30,43 @@ import {
 } from "@/lib/course";
 import { getCompletedSessionIds } from "@/lib/progress/queries";
 
-export const metadata: Metadata = {
-  title: "PRINCE2 Foundation course",
-  description:
-    "The complete free PRINCE2 Foundation course: 13 modules, 66 illustrated sessions, learning objectives and full syllabus. Start learning today.",
-};
-
 const benefitIcons = [ListChecks, Sparkles, CheckCircle2, Clock3];
 
 export const instant = false;
 
-export default async function CoursePage() {
+// Prerender known course slugs; unknown slugs 404 via request-time notFound.
+export function generateStaticParams() {
+  return Object.keys(courses).map((courseSlug) => ({ courseSlug }));
+}
+
+type Params = { courseSlug: string };
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<Params>;
+}): Promise<Metadata> {
+  const { courseSlug } = await params;
+  const course = await loadCourse(courseSlug);
+  if (!course) return {};
+  return {
+    title: `${course.shortTitle} course`,
+    description: `The complete free ${course.shortTitle} course: ${course.modules.length} modules of illustrated sessions, knowledge checks and the full ${course.level} syllabus.`,
+  };
+}
+
+export default async function CoursePage({
+  params,
+}: {
+  params: Promise<Params>;
+}) {
+  const { courseSlug } = await params;
+  if (!courses[courseSlug]) notFound();
   await connection();
-  const [course, viewer] = await Promise.all([loadCourse(), getViewer()]);
-  const completedSessionIds = await getCompletedSessionIds(viewer);
+  const course = await loadCourse(courseSlug);
+  if (!course) notFound();
+  const viewer = await getViewer();
+  const completedSessionIds = await getCompletedSessionIds(viewer, course.slug);
   const stats = getCourseStats(course);
   const completed = new Set(completedSessionIds);
   const firstModule = course.modules[0];
@@ -81,7 +106,7 @@ export default async function CoursePage() {
                 </li>
                 <li aria-hidden="true">/</li>
                 <li aria-current="page" className="text-white/80">
-                  PRINCE2 Foundation
+                  {course.shortTitle}
                 </li>
               </ol>
             </nav>
@@ -93,24 +118,23 @@ export default async function CoursePage() {
                     Free course
                   </Badge>
                   <span className="rounded-full border border-white/15 px-2.5 py-1 text-[0.7rem] font-semibold text-white/65">
-                    Foundation level
+                    {course.level} level
                   </span>
                   <span className="rounded-full border border-white/15 px-2.5 py-1 text-[0.7rem] font-semibold text-white/65">
                     7th edition
                   </span>
                 </div>
                 <h1 className="display mt-5 max-w-2xl text-balance text-4xl leading-[1.05] sm:text-5xl lg:text-[3.6rem]">
-                  PRINCE2® Foundation, explained properly.
+                  {course.title}, explained properly.
                 </h1>
                 <p className="mt-5 max-w-xl text-pretty text-base leading-relaxed text-white/65 sm:text-lg">
-                  A complete, illustrated course covering the full PRINCE2
-                  Foundation syllabus. Study in order or jump straight to the
-                  topic you need — every session is short, visual and followed by
-                  a knowledge check.
+                  {course.description} Study in order or jump straight to the
+                  topic you need — every session is short, visual and followed
+                  by a knowledge check.
                 </p>
                 <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                   <Link
-                    href={`/learning/prince2-foundation/${firstModule.slug}/${firstSession.slug}`}
+                    href={`/learning/${course.slug}/${firstModule.slug}/${firstSession.slug}`}
                     className={buttonVariants({
                       variant: "inverse",
                       size: "cta-lg",
@@ -162,21 +186,25 @@ export default async function CoursePage() {
                       <Timer className="size-3.5 text-gold" aria-hidden="true" />
                       Exam time
                     </span>
-                    <span className="text-white/85">60 minutes</span>
+                    <span className="text-white/85">
+                      {course.examDetails.durationMinutes} minutes
+                    </span>
                   </div>
                   <div className="flex items-center justify-between gap-4">
                     <span className="inline-flex items-center gap-2">
                       <ListChecks className="size-3.5 text-gold" aria-hidden="true" />
-                      Questions
+                      Format
                     </span>
-                    <span className="text-white/85">60, multiple choice</span>
+                    <span className="text-right text-white/85">
+                      {course.examDetails.format}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between gap-4">
                     <span className="inline-flex items-center gap-2">
                       <CheckCircle2 className="size-3.5 text-gold" aria-hidden="true" />
                       Pass mark
                     </span>
-                    <span className="text-white/85">60% (36/60)</span>
+                    <span className="text-white/85">{course.examDetails.passMark}</span>
                   </div>
                 </div>
               </aside>
@@ -209,7 +237,9 @@ export default async function CoursePage() {
                   <p className="text-[0.6rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                     Level
                   </p>
-                  <p className="mt-1 text-sm font-medium text-foreground">Foundation</p>
+                  <p className="mt-1 text-sm font-medium text-foreground">
+                    {course.level}
+                  </p>
                 </div>
                 <div className="pl-2">
                   <p className="text-[0.6rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
@@ -297,7 +327,7 @@ export default async function CoursePage() {
                         return (
                           <li key={session.id}>
                             <Link
-                              href={`/learning/prince2-foundation/${module.slug}/${session.slug}`}
+                              href={`/learning/${course.slug}/${module.slug}/${session.slug}`}
                               className="group/session flex items-center gap-3 px-3.5 py-3 transition-colors hover:bg-accent/40"
                             >
                               <span
@@ -340,7 +370,7 @@ export default async function CoursePage() {
             <div>
               <SectionHeading
                 eyebrow="Study time"
-                title="Around 15 focused hours."
+                title={`Around ${formatDuration(stats.durationMinutes)} of lessons.`}
                 description="Lesson time is only part of the picture. Leave room for knowledge checks and at least one full mock exam before test day."
               />
               <div className="mt-7 rounded-2xl border border-border bg-card p-5">
@@ -415,7 +445,7 @@ export default async function CoursePage() {
                   </p>
                 </div>
                 <Link
-                  href={`/learning/prince2-foundation/${firstModule.slug}/${firstSession.slug}`}
+                  href={`/learning/${course.slug}/${firstModule.slug}/${firstSession.slug}`}
                   className={buttonVariants({ size: "cta", className: "shrink-0" })}
                 >
                   Start learning

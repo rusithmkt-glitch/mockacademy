@@ -16,8 +16,6 @@ export const examTopicModules = {
   Tailoring: "tailoring-and-exam-preparation",
 } as const;
 
-export type BankTopic = keyof typeof examTopicModules;
-
 const PAIRS = [
   [1, 2],
   [1, 3],
@@ -48,13 +46,21 @@ function shuffle<T>(items: T[], random: () => number): T[] {
   return result;
 }
 
-export function createBank(prefix: string) {
+/**
+ * Builds a bank of original practice questions. `topicModules` maps each
+ * topic label to the course module that teaches it, so topic results can
+ * deep-link learners back to the right lesson.
+ */
+export function createBank<Topic extends string>(
+  prefix: string,
+  topicModules: Record<Topic, string>,
+) {
   const questions: ExamQuestion[] = [];
   const random = seededRandom(prefix);
   let positions: number[] = [];
 
   function push(
-    topic: BankTopic,
+    topic: Topic,
     prompt: string,
     labels: string[],
     correctIndex: number,
@@ -63,7 +69,7 @@ export function createBank(prefix: string) {
     questions.push({
       id: `${prefix}-${String(questions.length + 1).padStart(3, "0")}`,
       topic,
-      moduleId: examTopicModules[topic],
+      moduleId: topicModules[topic],
       prompt,
       options: labels.map((label, index) => ({ id: optionId(index), label })),
       correctOptionId: optionId(correctIndex),
@@ -73,7 +79,7 @@ export function createBank(prefix: string) {
 
   /** Single answer with three distractors; the answer position is balanced across a–d. */
   function mc(
-    topic: BankTopic,
+    topic: Topic,
     prompt: string,
     answer: string,
     distractors: [string, string, string],
@@ -88,7 +94,7 @@ export function createBank(prefix: string) {
 
   /** "Which two statements…" item; statements render as a numbered list. */
   function two(
-    topic: BankTopic,
+    topic: Topic,
     lead: string,
     statements: [string, string, string, string],
     correct: [1 | 2 | 3 | 4, 1 | 2 | 3 | 4],
@@ -114,5 +120,48 @@ export function createBank(prefix: string) {
     );
   }
 
-  return { mc, two, questions };
+  /**
+   * Matching item worth one mark per stem: each situation takes one answer
+   * from the shared option list, exactly like the real Practitioner paper.
+   */
+  function match(
+    topic: Topic,
+    lead: string,
+    stems: [string, string, string],
+    options: string[],
+    answers: [number, number, number],
+    explanation: string,
+  ) {
+    if (options.length < 5 || options.length > 6) {
+      throw new Error(`${prefix}: matching items need 5 or 6 shared options`);
+    }
+    const order = shuffle(
+      options.map((_, index) => index),
+      random,
+    );
+    const prompt = [lead, ...stems.map((text, i) => `${i + 1}. ${text}`)].join(
+      "\n",
+    );
+    questions.push({
+      id: `${prefix}-${String(questions.length + 1).padStart(3, "0")}`,
+      topic,
+      moduleId: topicModules[topic],
+      prompt,
+      kind: "match",
+      marks: stems.length,
+      options: order.map((sourceIndex) => ({
+        id: optionId(sourceIndex),
+        label: options[sourceIndex],
+      })),
+      stems: stems.map((label, stemIndex) => ({
+        id: `s${stemIndex + 1}`,
+        label,
+        correctOptionId: optionId(answers[stemIndex]),
+      })),
+      correctOptionId: "",
+      explanation,
+    });
+  }
+
+  return { mc, two, match, questions };
 }

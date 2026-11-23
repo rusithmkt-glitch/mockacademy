@@ -15,15 +15,15 @@ import { ExamLibrary } from "@/components/catalogue/exam-library";
 import { BackendSetupNotice } from "@/components/setup/backend-setup-notice";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
-import { examBlueprint } from "@/data/mock-exams";
+import { examBlueprint, practitionerBlueprint } from "@/data/mock-exams";
 import { FOUNDATION_MOCK_ID, getExamConfig } from "@/data/exams/config";
 import { isSupabaseConfigured } from "@/lib/env";
 import { listPublishedExams } from "@/lib/exams/queries";
 
 export const metadata: Metadata = {
-  title: "Free PRINCE2 Foundation mock exams",
+  title: "Free PRINCE2 Foundation and Practitioner mock exams",
   description:
-    "Two free PRINCE2 7th edition Foundation mock exams: a fixed 60-question paper to track progress and a random exam simulator built around the real format.",
+    "Free PRINCE2 7th edition mock exams: a fixed 60-question Foundation paper, a random Foundation simulator, and an open-book Practitioner paper with a project scenario worth 68 marks.",
 };
 
 export const instant = false;
@@ -97,13 +97,13 @@ export default async function MockExamsPage() {
                 headingLevel="h1"
                 pill="Free exam library"
                 title={
-                  exams.length === 2
-                    ? "Two free mock exams. One clear goal: exam readiness."
+                  exams.length === 3
+                    ? "Three free mock exams. One clear goal: exam readiness."
                     : exams.length > 0
                       ? `${exams.length} ${exams.length === 1 ? "paper" : "papers"}. One clear goal: exam readiness.`
                       : "Free mock papers. One clear goal: exam readiness."
                 }
-                description="A fixed mock exam to measure your progress and a random simulator that feels like exam day. Both are free and built around the PRINCE2 7th edition Foundation syllabus."
+                description="A fixed Foundation mock to measure your progress, a random simulator that feels like exam day, and an open-book Practitioner paper built around a project scenario. All free, all built around the PRINCE2 7th edition syllabus."
               >
                 <div className="mt-6 flex flex-wrap justify-center gap-2">
                   <Badge tone="lavender">
@@ -153,8 +153,8 @@ export default async function MockExamsPage() {
         <section className="border-y border-border/70 bg-card">
           <div className="shell py-16 lg:py-20">
             <CatalogueIntro
-              pill="About the exam"
-              title="Built around the real Foundation paper."
+              pill="About the exams"
+              title="Built around the real papers."
               description="The same topics, the same proportions and the same time pressure — so your practice actually tells you something."
             />
 
@@ -194,7 +194,10 @@ export default async function MockExamsPage() {
                   </dl>
                   <p className="mt-3 text-[0.72rem] leading-relaxed text-muted-foreground">
                     Always confirm current exam rules with PeopleCert before
-                    booking. MockAcademy papers are for practice only. New to
+                    booking. MockAcademy papers are for practice only. The
+                    Practitioner paper is different again: 56 items worth 68
+                    marks in 2 hours 30, open book, pass at 38 marks, with
+                    three-mark matching sets against a project scenario. New to
                     the format?{" "}
                     <Link
                       href="/guides/prince2-foundation-exam-format-pass-mark"
@@ -222,8 +225,34 @@ export default async function MockExamsPage() {
                   </span>
                 </summary>
                 <div className="pb-5 pl-11 pr-1">
+                  <p className="mb-2 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-plum">
+                    Foundation papers
+                  </p>
                   <ul className="space-y-2">
                     {examBlueprint.map((item) => (
+                      <li
+                        key={item.topic}
+                        className="rounded-xl bg-white/75 px-3 py-2"
+                      >
+                        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                          <span className="text-[0.8rem] font-semibold text-foreground">
+                            {item.topic}
+                          </span>
+                          <span className="text-[0.62rem] font-medium text-plum">
+                            {item.share}
+                          </span>
+                        </div>
+                        <p className="mt-0.5 text-[0.74rem] leading-relaxed text-muted-foreground">
+                          {item.description}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="mb-2 mt-4 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-plum">
+                    Practitioner paper
+                  </p>
+                  <ul className="space-y-2">
+                    {practitionerBlueprint.map((item) => (
                       <li
                         key={item.topic}
                         className="rounded-xl bg-white/75 px-3 py-2"

@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, type ReactNode } from "react";
 import Link from "next/link";
 import {
   ArrowUpRight,
-  BookOpen,
+  Award,
   FileText,
   Repeat,
   Shuffle,
@@ -12,24 +12,21 @@ import {
   Timer,
 } from "lucide-react";
 import { BrandMark } from "@/components/logo";
-import { FilterTabs } from "@/components/catalogue/filter-tabs";
-import type { ExamDifficultyLabel, ExamSummary } from "@/lib/exams/types";
+import type { ExamSummary } from "@/lib/exams/types";
 import { cn } from "@/lib/utils";
 
 const headerTones = ["bg-lavender", "bg-amber", "bg-mint"] as const;
 
-const filterGroups = [
-  { id: "all", label: "All papers" },
-  { id: "full", label: "Full simulations" },
-  { id: "focused", label: "Focused practice" },
-  { id: "rapid", label: "Rapid revision" },
-] as const;
+const levelOrder = ["foundation", "practitioner", "intermediate", "advanced"];
 
-const difficultyGroup: Record<ExamDifficultyLabel, string> = {
-  "Full simulation": "full",
-  "Focused practice": "focused",
-  "Rapid revision": "rapid",
-};
+function levelWeight(level: string) {
+  const index = levelOrder.indexOf(level.toLowerCase());
+  return index === -1 ? levelOrder.length : index;
+}
+
+function capitalise(value: string) {
+  return value ? `${value[0]?.toUpperCase()}${value.slice(1)}` : value;
+}
 
 function MetaChip({
   icon: Icon,
@@ -111,15 +108,26 @@ function ExamTile({ exam, index }: { exam: ExamSummary; index: number }) {
           What&apos;s included
         </p>
         <div className="mt-2 flex flex-wrap gap-1.5">
-          <MetaChip icon={FileText}>{exam.questionCount} questions</MetaChip>
+          <MetaChip icon={FileText}>
+            {exam.questionCount} questions
+            {exam.totalMarks !== exam.questionCount
+              ? ` · ${exam.totalMarks} marks`
+              : ""}
+          </MetaChip>
           <MetaChip icon={Timer}>{exam.durationMinutes} minutes</MetaChip>
-          <MetaChip icon={BookOpen}>Closed book</MetaChip>
+          <MetaChip icon={Award}>
+            {exam.isOpenBook ? "Open book" : "Closed book"}
+          </MetaChip>
           <MetaChip icon={exam.selectionMode === "random" ? Shuffle : Repeat}>
             {exam.selectionMode === "random"
               ? "New paper every attempt"
               : "Same paper every attempt"}
           </MetaChip>
-          <MetaChip icon={Target}>{exam.passPercent}% to pass</MetaChip>
+          <MetaChip icon={Target}>
+            {exam.passMark
+              ? `${exam.passMark} of ${exam.totalMarks} marks to pass`
+              : `${exam.passPercent}% to pass`}
+          </MetaChip>
         </div>
         <p className="mt-3 text-[0.68rem] leading-relaxed text-muted-foreground">
           Covers {exam.topics.join(" · ")}
@@ -144,60 +152,65 @@ function ExamTile({ exam, index }: { exam: ExamSummary; index: number }) {
 }
 
 export function ExamLibrary({ exams }: { exams: ExamSummary[] }) {
-  const [active, setActive] = useState("all");
+  const sections = useMemo(() => {
+    const map = new Map<string, { title: string; exams: ExamSummary[] }>();
+    for (const exam of exams) {
+      const title = `${exam.certification} ${capitalise(exam.level)}`;
+      const section = map.get(title);
+      if (section) {
+        section.exams.push(exam);
+      } else {
+        map.set(title, { title, exams: [exam] });
+      }
+    }
+    return [...map.values()].sort(
+      (a, b) =>
+        levelWeight(a.exams[0]?.level ?? "") -
+          levelWeight(b.exams[0]?.level ?? "") ||
+        a.title.localeCompare(b.title),
+    );
+  }, [exams]);
 
-  const options = useMemo(
-    () =>
-      filterGroups.map((group) => ({
-        ...group,
-        count:
-          group.id === "all"
-            ? exams.length
-            : exams.filter((exam) => difficultyGroup[exam.difficulty] === group.id)
-                .length,
-      })),
-    [exams],
-  );
-
-  const filtered =
-    active === "all"
-      ? exams
-      : exams.filter((exam) => difficultyGroup[exam.difficulty] === active);
-
-  const showFilters =
-    options.filter((option) => option.id !== "all" && option.count > 0).length > 1;
+  const showHeadings = sections.length > 1;
 
   return (
-    <>
-      {showFilters ? (
-        <>
-          <FilterTabs
-            options={options}
-            value={active}
-            onChange={setActive}
-            label="Filter mock papers"
-          />
-          <p className="sr-only" aria-live="polite">
-            Showing {filtered.length} of {exams.length} papers
-          </p>
-        </>
-      ) : null}
+    <div className={cn("mt-9", showHeadings ? "space-y-14" : "")}>
+      {sections.map((section, sectionIndex) => (
+        <section key={section.title} aria-labelledby={`library-${sectionIndex}`}>
+          {showHeadings ? (
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h2
+                id={`library-${sectionIndex}`}
+                className="font-heading text-[1.3rem] text-foreground"
+              >
+                {section.title} papers
+              </h2>
+              <p className="text-[0.72rem] text-muted-foreground">
+                {section.exams.length} free
+                {section.exams.length === 1 ? " paper" : " papers"} ·{" "}
+                {section.exams[0]?.level === "practitioner"
+                  ? "open book, weighted marks"
+                  : "closed book, one mark each"}
+              </p>
+            </div>
+          ) : null}
 
-      <div
-        data-reveal
-        className={cn(
-          "mt-9 grid items-stretch gap-5 sm:grid-cols-2",
-          exams.length > 2 ? "lg:grid-cols-3" : "mx-auto max-w-4xl",
-        )}
-      >
-        {filtered.map((exam) => (
-          <ExamTile
-            key={exam.id}
-            exam={exam}
-            index={exams.findIndex((item) => item.id === exam.id)}
-          />
-        ))}
-      </div>
-    </>
+          <div
+            data-reveal
+            className={cn(
+              showHeadings ? "mt-5" : "",
+              "grid items-stretch gap-5 sm:grid-cols-2",
+              section.exams.length > 2
+                ? "lg:grid-cols-3"
+                : !showHeadings && "mx-auto max-w-4xl",
+            )}
+          >
+            {section.exams.map((exam, index) => (
+              <ExamTile key={exam.id} exam={exam} index={index} />
+            ))}
+          </div>
+        </section>
+      ))}
+    </div>
   );
 }

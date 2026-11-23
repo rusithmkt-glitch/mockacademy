@@ -1,5 +1,10 @@
 import type { ExamSet } from "./types";
-import { EXAM_SIMULATOR_ID, FOUNDATION_MOCK_ID } from "./exams/config";
+import {
+  EXAM_SIMULATOR_ID,
+  FOUNDATION_MOCK_ID,
+  PRACTITIONER_MOCK_ID,
+} from "./exams/config";
+import { practitionerReferenceMaterials } from "./exams/practitioner-scenario";
 
 const elements = ["Principles", "People", "Practices", "Processes", "Project context"];
 
@@ -19,6 +24,29 @@ export const examSets: ExamSet[] = [
     featured: true,
     maxAttempts: 3,
     feedbackAttempts: 2,
+    certification: "PRINCE2",
+    level: "foundation",
+  },
+  {
+    id: PRACTITIONER_MOCK_ID,
+    slug: "prince2-7th-edition-practitioner-mock",
+    title: "PRINCE2 7th Edition Practitioner Mock Exam",
+    description:
+      "68 marks in 2 hours 30 against a Fern & Flour project scenario, open book, just like the real Practitioner paper: 50 one-mark questions plus six matching sets worth three each. Pass with 38 marks.",
+    questionCount: 56,
+    durationMinutes: 150,
+    format: "Multiple choice & matching · open book",
+    difficulty: "Full simulation",
+    topics: ["Principles in context", "Seven themes", "Seven processes"],
+    free: true,
+    maxAttempts: 3,
+    feedbackAttempts: 2,
+    certification: "PRINCE2",
+    level: "practitioner",
+    totalMarks: 68,
+    passMark: 38,
+    isOpenBook: true,
+    referenceMaterials: practitionerReferenceMaterials,
   },
   {
     id: EXAM_SIMULATOR_ID,
@@ -34,6 +62,8 @@ export const examSets: ExamSet[] = [
     free: true,
     maxAttempts: 10,
     feedbackAttempts: 10,
+    certification: "PRINCE2",
+    level: "foundation",
   },
 ];
 
@@ -67,5 +97,32 @@ export const examBlueprint = [
     share: "About 20%",
     description:
       "The seven processes from starting up to closing, and tailoring PRINCE2 to its context.",
+  },
+];
+
+export const practitionerBlueprint = [
+  {
+    topic: "Principles in context",
+    share: "8 of 68 marks",
+    description:
+      "Apply and assess the seven principles against a live project scenario, including the awkward trade-offs.",
+  },
+  {
+    topic: "The seven themes",
+    share: "35 of 68 marks",
+    description:
+      "Business case, organisation, quality, plans, risk, change and progress — what each must produce on this project and whether it holds up.",
+  },
+  {
+    topic: "The seven processes",
+    share: "25 of 68 marks",
+    description:
+      "From starting up to closing: who does what, when, and what the board should demand at each decision point.",
+  },
+  {
+    topic: "Matching question sets",
+    share: "18 of 68 marks",
+    description:
+      "Six three-mark sets match situations to documents, techniques or responses — one mark each, no negative marking.",
   },
 ];

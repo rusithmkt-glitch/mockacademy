@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
   Check,
@@ -8,7 +8,9 @@ import {
   ChevronRight,
   CircleAlert,
   Clock3,
+  FileText,
   Flag,
+  Layers,
   Send,
 } from "lucide-react";
 import type { AttemptMode } from "@/lib/exam/types";
@@ -20,15 +22,28 @@ import {
   type ResponseMap,
 } from "@/lib/exam/responses";
 import { formatClock } from "@/lib/exam/timer";
+import type { DbReferenceMaterial } from "@/lib/exams/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProgressBar } from "@/components/ui/progress";
 import { PromptStatements, splitPrompt } from "./question-prompt";
+import { MatchQuestion } from "./match-question";
+import { ScenarioPanel } from "./scenario-panel";
+import { scrollToElement } from "@/components/motion/smooth-scroll";
 import { cn } from "@/lib/utils";
 
 export interface ExamFeedback {
+  kind: "single" | "match";
+  marks: number;
+  stems: {
+    id: string;
+    label: string;
+    selectedOptionId?: string;
+    correctOptionId?: string;
+  }[];
   correctOptionId: string;
   explanation: string;
+  isCorrect: boolean;
 }
 
 export function ExamSession({
@@ -42,7 +57,9 @@ export function ExamSession({
   lowTime,
   saveError,
   submitting = false,
+  referenceMaterials = [],
   onSelect,
+  onSelectStem,
   onToggleFlag,
   onNavigate,
   onSubmit,
@@ -57,12 +74,26 @@ export function ExamSession({
   lowTime: boolean;
   saveError?: string | null;
   submitting?: boolean;
+  referenceMaterials?: DbReferenceMaterial[];
   onSelect: (optionId: string) => void;
+  onSelectStem: (stemId: string, optionId: string | null) => void;
   onToggleFlag: () => void;
   onNavigate: (index: number) => void;
   onSubmit: () => void;
 }) {
   const [confirming, setConfirming] = useState(false);
+  const [scenarioOpen, setScenarioOpen] = useState(false);
+  const cardRef = useRef<HTMLElement | null>(null);
+  const mountedRef = useRef(false);
+
+  useEffect(() => {
+    if (!mountedRef.current) {
+      mountedRef.current = true;
+      return;
+    }
+    if (cardRef.current) scrollToElement(cardRef.current);
+  }, [index]);
+
   const question = questions[index];
   if (!question) return null;
 
@@ -72,7 +103,9 @@ export function ExamSession({
   const unanswered = total - answered;
   const current = responses[question.id];
   const selectedId = current?.selectedOptionIds[0];
+  const selectedByStem = current?.selectedByStem ?? {};
   const isFlagged = current?.flagged ?? false;
+  const isMatch = question.kind === "match";
 
   return (
     <div className="mt-6">
@@ -89,6 +122,16 @@ export function ExamSession({
             </p>
           </div>
           <div className="flex items-center gap-2.5">
+            {referenceMaterials.length > 0 ? (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setScenarioOpen(true)}
+              >
+                <FileText className="size-3.5" aria-hidden="true" />
+                Scenario
+              </Button>
+            ) : null}
             <span
               role="timer"
               aria-label="Time remaining"
@@ -161,6 +204,7 @@ export function ExamSession({
 
       <div className="grid gap-5 pt-5 lg:grid-cols-[minmax(0,1fr)_19rem]">
         <section
+          ref={cardRef}
           aria-labelledby="exam-question-title"
           className="rounded-3xl border border-border bg-card p-5 shadow-soft sm:p-7"
         >
@@ -172,6 +216,16 @@ export function ExamSession({
               <span className="rounded-full bg-muted/60 px-2.5 py-1 text-[0.62rem] font-medium text-muted-foreground">
                 {question.topic}
               </span>
+              {isMatch ? (
+                <span className="inline-flex items-center gap-1 rounded-full bg-lavender px-2.5 py-1 text-[0.62rem] font-medium text-navy">
+                  <Layers className="size-3" aria-hidden="true" />
+                  {question.marks} marks · 1 per correct match
+                </span>
+              ) : question.marks > 1 ? (
+                <span className="rounded-full bg-lavender px-2.5 py-1 text-[0.62rem] font-medium text-navy">
+                  {question.marks} marks
+                </span>
+              ) : null}
             </div>
             <button
               type="button"
@@ -198,56 +252,68 @@ export function ExamSession({
           >
             {splitPrompt(question.prompt).lead}
           </h2>
-          <PromptStatements prompt={question.prompt} />
+          {isMatch ? (
+            <MatchQuestion
+              stems={question.stems ?? []}
+              options={question.options}
+              selectedByStem={selectedByStem}
+              onSelectStem={onSelectStem}
+              questionNumber={index + 1}
+            />
+          ) : (
+            <>
+              <PromptStatements prompt={question.prompt} />
 
-          <fieldset className="mt-5">
-            <legend className="sr-only">
-              Choose one answer for question {index + 1}
-            </legend>
-            <div className="space-y-2">
-              {question.options.map((option, optionIndex) => {
-                const isSelected = selectedId === option.id;
+              <fieldset className="mt-5">
+                <legend className="sr-only">
+                  Choose one answer for question {index + 1}
+                </legend>
+                <div className="space-y-2">
+                  {question.options.map((option, optionIndex) => {
+                    const isSelected = selectedId === option.id;
 
-                return (
-                  <label
-                    key={option.id}
-                    className={cn(
-                      "flex cursor-pointer items-center gap-3 rounded-xl border px-3.5 py-3 transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring/60",
-                      isSelected
-                        ? "border-primary/40 bg-accent"
-                        : "border-border/70 bg-background hover:border-primary/25 hover:bg-accent/40",
-                    )}
-                  >
-                    <input
-                      type="radio"
-                      name="exam-option"
-                      value={option.id}
-                      checked={isSelected}
-                      onChange={() => onSelect(option.id)}
-                      className="sr-only"
-                    />
-                    <span
-                      className={cn(
-                        "flex size-6 shrink-0 items-center justify-center rounded-full border text-[0.65rem] font-semibold",
-                        isSelected
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-border bg-background text-muted-foreground",
-                      )}
-                    >
-                      {isSelected ? (
-                        <Check className="size-3.5" strokeWidth={3} aria-hidden="true" />
-                      ) : (
-                        String.fromCharCode(65 + optionIndex)
-                      )}
-                    </span>
-                    <span className="flex-1 text-[0.86rem] leading-relaxed text-foreground/80">
-                      {option.label}
-                    </span>
-                  </label>
-                );
-              })}
-            </div>
-          </fieldset>
+                    return (
+                      <label
+                        key={option.id}
+                        className={cn(
+                          "flex cursor-pointer items-center gap-3 rounded-xl border px-3.5 py-3 transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring/60",
+                          isSelected
+                            ? "border-primary/40 bg-accent"
+                            : "border-border/70 bg-background hover:border-primary/25 hover:bg-accent/40",
+                        )}
+                      >
+                        <input
+                          type="radio"
+                          name="exam-option"
+                          value={option.id}
+                          checked={isSelected}
+                          onChange={() => onSelect(option.id)}
+                          className="sr-only"
+                        />
+                        <span
+                          className={cn(
+                            "flex size-6 shrink-0 items-center justify-center rounded-full border text-[0.65rem] font-semibold",
+                            isSelected
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-border bg-background text-muted-foreground",
+                          )}
+                        >
+                          {isSelected ? (
+                            <Check className="size-3.5" strokeWidth={3} aria-hidden="true" />
+                          ) : (
+                            String.fromCharCode(65 + optionIndex)
+                          )}
+                        </span>
+                        <span className="flex-1 text-[0.86rem] leading-relaxed text-foreground/80">
+                          {option.label}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </fieldset>
+            </>
+          )}
 
           <div className="mt-6 flex items-center justify-between gap-3 border-t border-border pt-4">
             <Button
@@ -387,9 +453,19 @@ export function ExamSession({
             {mode === "study"
               ? "Study attempt — full answer review unlocks after you submit."
               : "Formal mode — score and topic breakdown after you submit; explanations withheld."}
+            {referenceMaterials.length > 0
+              ? " Scenario documents stay available for the whole paper, as on the real open-book exam."
+              : ""}
           </p>
         </aside>
       </div>
+
+      {scenarioOpen ? (
+        <ScenarioPanel
+          materials={referenceMaterials}
+          onClose={() => setScenarioOpen(false)}
+        />
+      ) : null}
     </div>
   );
 }

@@ -6,6 +6,7 @@ import type { PresentedQuestion } from "@/lib/exam/presentation";
 import type { ResponseMap, ResponseState } from "@/lib/exam/responses";
 import {
   selectOption,
+  selectStemOption,
   toggleFlag,
 } from "@/lib/exam/responses";
 import { isLowTime } from "@/lib/exam/timer";
@@ -44,6 +45,9 @@ function submittedQuestions(
     moduleId: "",
     prompt: question.prompt,
     options: question.options.map((option) => ({ ...option })),
+    kind: question.kind ?? "single",
+    marks: question.marks ?? question.stems?.length ?? 1,
+    stems: (question.stems ?? []).map((stem) => ({ ...stem })),
   }));
 }
 
@@ -173,7 +177,11 @@ export function ExamRunner({
   function queueSave(questionId: string, next: ResponseState) {
     if (!attempt) return;
     const attemptId = attempt.id;
-    const fingerprint = `${[...next.selectedOptionIds].sort().join(",")}|${next.flagged}`;
+    const stemPart = Object.entries(next.selectedByStem ?? {})
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([stemId, optionId]) => `${stemId}:${optionId}`)
+      .join(",");
+    const fingerprint = `${[...next.selectedOptionIds].sort().join(",")}|${stemPart}|${next.flagged}`;
     if (lastSavedRef.current.get(questionId) === fingerprint) return;
     lastSavedRef.current.set(questionId, fingerprint);
     setSaveError(null);
@@ -184,6 +192,7 @@ export function ExamRunner({
         questionId,
         selectedOptionIds: next.selectedOptionIds,
         flagged: next.flagged,
+        selectedByStem: next.selectedByStem,
       });
 
       if (!result.ok) {
@@ -209,6 +218,14 @@ export function ExamRunner({
     const question = questions[index];
     if (!question) return;
     const next = selectOption(responses, question.id, optionId);
+    setResponses(next);
+    queueSave(question.id, next[question.id]);
+  }
+
+  function handleStemSelect(stemId: string, optionId: string | null) {
+    const question = questions[index];
+    if (!question) return;
+    const next = selectStemOption(responses, question.id, stemId, optionId);
     setResponses(next);
     queueSave(question.id, next[question.id]);
   }
@@ -335,12 +352,13 @@ export function ExamRunner({
         lowTime={isLowTime(remaining)}
         saveError={saveError}
         submitting={submitting}
+        referenceMaterials={attempt.referenceMaterials ?? []}
         onSelect={handleSelect}
+        onSelectStem={handleStemSelect}
         onToggleFlag={handleToggleFlag}
         onNavigate={(nextIndex) => {
           if (nextIndex < 0 || nextIndex >= presented.length) return;
           setIndex(nextIndex);
-          window.scrollTo(0, 0);
         }}
         onSubmit={() => void finishExam()}
       />
@@ -352,6 +370,7 @@ export function ExamRunner({
       <ExamResults
         examTitle={submitted.attempt.examTitle}
         examSlug={submitted.attempt.examSlug}
+        courseSlug={`prince2-${submitted.attempt.level}`}
         participantName={participantName}
         result={toExamResult(submitted)}
         attemptNumber={submitted.attempt.attemptNumber}

@@ -1,6 +1,5 @@
 import type { ExamTopic, TopicResult } from "./types";
-import { topicModuleMap } from "@/data/exams/config";
-import { course } from "@/lib/course";
+import { getCourseBySlug, getCourseTopicModules } from "@/data/courses";
 
 export interface RecommendedLesson {
   moduleId: string;
@@ -13,18 +12,23 @@ export interface RecommendedLesson {
 
 /**
  * Maps the weakest exam topics to the first lesson in the matching course
- * module. This keeps recommendations data-driven instead of hand-written.
+ * module. This keeps recommendations data-driven instead of hand-written,
+ * and works for every course registered in the catalogue.
  */
 export function getRecommendedLessons(
   topics: TopicResult[],
   limit = 3,
+  courseSlug = "prince2-foundation",
 ): RecommendedLesson[] {
+  const course = getCourseBySlug(courseSlug);
+  if (!course) return [];
+  const topicModules = getCourseTopicModules(courseSlug);
   const seen = new Set<string>();
   const recommendations: RecommendedLesson[] = [];
 
   for (const topic of [...topics].sort((a, b) => a.percent - b.percent)) {
     if (topic.percent >= 100) continue;
-    const moduleSlug = topicModuleMap[topic.topic];
+    const moduleSlug = topicModules[topic.topic];
     if (!moduleSlug || seen.has(moduleSlug)) continue;
     const courseModule = course.modules.find((item) => item.slug === moduleSlug);
     const session = courseModule?.sessions[0];
@@ -37,7 +41,7 @@ export function getRecommendedLessons(
       topic: topic.topic,
       percent: topic.percent,
       sessionTitle: session.title,
-      href: `/learning/prince2-foundation/${courseModule.slug}/${session.slug}`,
+      href: `/learning/${courseSlug}/${courseModule.slug}/${session.slug}`,
     });
     if (recommendations.length === limit) break;
   }

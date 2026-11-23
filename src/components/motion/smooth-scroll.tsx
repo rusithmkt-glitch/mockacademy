@@ -10,6 +10,17 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
+let activeLenis: Lenis | null = null;
+
+export function scrollToElement(target: HTMLElement, offset = -136) {
+  if (activeLenis) {
+    activeLenis.scrollTo(target, { offset });
+    return;
+  }
+  const top = window.scrollY + target.getBoundingClientRect().top + offset;
+  window.scrollTo({ top, behavior: "smooth" });
+}
+
 export function SmoothScroll() {
   const pathname = usePathname();
   const lenisRef = useRef<Lenis | null>(null);
@@ -33,6 +44,7 @@ export function SmoothScroll() {
       });
 
       lenisRef.current = lenis;
+      activeLenis = lenis;
       syncScrollTrigger = () => ScrollTrigger.update();
       lenis.on("scroll", syncScrollTrigger);
 
@@ -53,6 +65,7 @@ export function SmoothScroll() {
         lenis.destroy();
       }
       lenisRef.current = null;
+      if (activeLenis === lenis) activeLenis = null;
     };
   }, []);
 

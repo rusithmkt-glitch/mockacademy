@@ -147,6 +147,20 @@ export interface ExamSet {
   featured?: boolean;
   maxAttempts: number;
   feedbackAttempts: number;
+  /** Certification body/brand the paper prepares for, e.g. PRINCE2. */
+  certification?: string;
+  /** Discovery grouping level, e.g. foundation | practitioner. */
+  level?: string;
+  /** Marks per correct answer sum; defaults to questionCount. */
+  totalMarks?: number;
+  /** Absolute pass mark in marks; when absent the percent rule applies. */
+  passMark?: number;
+  isOpenBook?: boolean;
+  referenceMaterials?: {
+    title: string;
+    body?: string;
+    rows?: { label: string; value: string }[];
+  }[];
 }
 
 export interface TopicPerformance {

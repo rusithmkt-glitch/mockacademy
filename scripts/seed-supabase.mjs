@@ -57,6 +57,12 @@ async function seedExam(exam) {
         question_count: exam.questionCount,
         duration_minutes: exam.durationMinutes,
         pass_percent: examConfigs[exam.id].passMarkPercent,
+        pass_mark: exam.passMark ?? null,
+        total_marks: exam.totalMarks ?? exam.questionCount,
+        is_open_book: Boolean(exam.isOpenBook),
+        certification: exam.certification ?? "PRINCE2",
+        level: exam.level ?? "foundation",
+        reference_materials: exam.referenceMaterials ?? [],
         selection_mode: selection.mode,
         max_attempts: exam.maxAttempts,
         feedback_attempts: exam.feedbackAttempts,
@@ -101,6 +107,12 @@ async function seedExam(exam) {
         prompt: question.prompt,
         explanation: question.explanation,
         topic: question.topic,
+        kind: question.kind ?? "single",
+        marks: question.marks ?? 1,
+        stems: (question.stems ?? []).map((stem) => ({
+          id: stem.id,
+          label: stem.label,
+        })),
         order: index + 1,
         is_active: true,
       })),
@@ -110,14 +122,33 @@ async function seedExam(exam) {
   if (questionError) throw new Error(`${exam.slug}: ${questionError.message}`);
 
   const idByOrder = new Map(questionRows.map((row) => [row.order, row.id]));
-  const options = selected.flatMap((question, index) =>
-    question.options.map((option, optionIndex) => ({
-      question_id: idByOrder.get(index + 1),
+  const options = selected.flatMap((question, index) => {
+    const questionId = idByOrder.get(index + 1);
+    if (question.kind === "match") {
+      const stemByOption = new Map(
+        question.stems.map((stem) => [stem.correctOptionId, stem.id]),
+      );
+      if (stemByOption.size !== question.stems.length) {
+        throw new Error(
+          `${exam.slug}: ${question.id} reuses one option across stems`,
+        );
+      }
+      return question.options.map((option, optionIndex) => ({
+        question_id: questionId,
+        label: option.label,
+        order: optionIndex + 1,
+        is_correct: false,
+        matches_stem_id: stemByOption.get(option.id) ?? null,
+      }));
+    }
+    return question.options.map((option, optionIndex) => ({
+      question_id: questionId,
       label: option.label,
       order: optionIndex + 1,
       is_correct: option.id === question.correctOptionId,
-    })),
-  );
+      matches_stem_id: null,
+    }));
+  });
 
   const { error: optionError } = await supabase
     .from("exam_options")

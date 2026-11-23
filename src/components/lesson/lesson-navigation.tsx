@@ -45,9 +45,11 @@ function CardContent({
 export function LessonNavigation({
   previous,
   next,
+  courseSlug,
 }: {
   previous: SessionRef | null;
   next: SessionRef | null;
+  courseSlug: string;
 }) {
   return (
     <nav
@@ -57,7 +59,7 @@ export function LessonNavigation({
     >
       {previous ? (
         <Link
-          href={`/learning/prince2-foundation/${previous.module.slug}/${previous.session.slug}`}
+          href={`/learning/${courseSlug}/${previous.module.slug}/${previous.session.slug}`}
           className="group flex items-center gap-3.5 rounded-2xl border border-border bg-card p-4 transition-all hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-soft"
         >
           <CardContent
@@ -69,7 +71,7 @@ export function LessonNavigation({
         </Link>
       ) : (
         <Link
-          href="/learning/prince2-foundation"
+          href={`/learning/${courseSlug}`}
           className="group flex items-center gap-3.5 rounded-2xl border border-border bg-card p-4 transition-all hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-soft"
         >
           <CardContent
@@ -83,7 +85,7 @@ export function LessonNavigation({
 
       {next ? (
         <Link
-          href={`/learning/prince2-foundation/${next.module.slug}/${next.session.slug}`}
+          href={`/learning/${courseSlug}/${next.module.slug}/${next.session.slug}`}
           className="group flex items-center gap-3.5 rounded-2xl border border-border bg-card p-4 transition-all hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-soft sm:flex-row-reverse sm:text-right"
         >
           <CardContent

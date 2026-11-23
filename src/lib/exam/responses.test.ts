@@ -5,6 +5,7 @@ import {
   countFlagged,
   isAnswered,
   selectOption,
+  selectStemOption,
   toStudentResponses,
   toggleFlag,
 } from "./responses";
@@ -18,6 +19,8 @@ const questions: PresentedQuestion[] = ["q1", "q2", "q3"].map((id) => ({
     { id: "a", label: "A" },
     { id: "b", label: "B" },
   ],
+  kind: "single",
+  marks: 1,
 }));
 
 describe("selectOption", () => {
@@ -52,6 +55,31 @@ describe("toggleFlag", () => {
 
     responses = toggleFlag(responses, "q1");
     expect(responses.q1).toEqual({ selectedOptionIds: ["b"], flagged: false });
+  });
+});
+
+describe("selectStemOption", () => {
+  it("records the choice per stem and mirrors the selected options", () => {
+    let responses = selectStemOption({}, "q1", "s1", "a");
+    responses = selectStemOption(responses, "q1", "s2", "b");
+
+    expect(responses.q1.selectedByStem).toEqual({ s1: "a", s2: "b" });
+    expect(responses.q1.selectedOptionIds).toEqual(["a", "b"]);
+  });
+
+  it("clears a stem when the same option is chosen again", () => {
+    let responses = selectStemOption({}, "q1", "s1", "a");
+    responses = selectStemOption(responses, "q1", "s1", "a");
+
+    expect(responses.q1.selectedByStem).toEqual({});
+    expect(responses.q1.selectedOptionIds).toEqual([]);
+  });
+
+  it("keeps stem answers when the flag is toggled", () => {
+    const responses = toggleFlag(selectStemOption({}, "q1", "s1", "a"), "q1");
+
+    expect(responses.q1.selectedByStem).toEqual({ s1: "a" });
+    expect(responses.q1.flagged).toBe(true);
   });
 });
 

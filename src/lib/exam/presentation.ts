@@ -2,6 +2,7 @@ import type {
   ExamConfig,
   ExamOption,
   ExamQuestion,
+  ExamQuestionKind,
   ExamTopic,
 } from "./types";
 
@@ -11,6 +12,10 @@ export interface PresentedQuestion {
   moduleId: string;
   prompt: string;
   options: ExamOption[];
+  kind: ExamQuestionKind;
+  marks: number;
+  /** Display-safe stems: id and label only, never the correct option. */
+  stems?: { id: string; label: string }[];
 }
 
 export function toPresentedQuestion(question: ExamQuestion): PresentedQuestion {
@@ -20,6 +25,9 @@ export function toPresentedQuestion(question: ExamQuestion): PresentedQuestion {
     moduleId: question.moduleId,
     prompt: question.prompt,
     options: question.options.map((option) => ({ ...option })),
+    kind: question.kind ?? "single",
+    marks: question.marks ?? question.stems?.length ?? 1,
+    stems: question.stems?.map((stem) => ({ ...stem })),
   };
 }
 

@@ -30,6 +30,7 @@ import { ScoreShare } from "./score-share";
 export function ExamResults({
   examTitle,
   examSlug,
+  courseSlug = "prince2-foundation",
   participantName = "",
   result,
   attemptNumber,
@@ -41,6 +42,7 @@ export function ExamResults({
 }: {
   examTitle: string;
   examSlug: string;
+  courseSlug?: string;
   participantName?: string;
   result: ExamResult;
   attemptNumber: number;
@@ -53,8 +55,13 @@ export function ExamResults({
   const responseById = new Map(
     result.responses.map((response) => [response.questionId, response]),
   );
-  const threshold = passThreshold(result.total, result.passMarkPercent);
-  const recommendations = getRecommendedLessons(result.topics);
+  const marksBased = result.passMark != null;
+  const threshold = passThreshold(
+    result.total,
+    result.passMarkPercent,
+    result.passMark,
+  );
+  const recommendations = getRecommendedLessons(result.topics, 3, courseSlug);
 
   return (
     <div className="mt-6 space-y-5">
@@ -89,9 +96,10 @@ export function ExamResults({
                 )}
                 {result.passed ? "Passed" : "Not passed"}
               </span>
-              <span className="text-[0.68rem] text-muted-foreground">
-                Pass mark {result.passMarkPercent}% ({threshold} of{" "}
-                {result.total})
+              <span className="text-[0.68rem] tabular-nums text-muted-foreground">
+                {marksBased
+                  ? `Pass mark ${result.passMark} of ${result.total} marks`
+                  : `Pass mark ${result.passMarkPercent}% (${threshold} of ${result.total})`}
               </span>
             </div>
 
@@ -99,7 +107,7 @@ export function ExamResults({
               id="exam-result-title"
               className="mt-3 font-heading text-3xl leading-tight text-foreground sm:text-[2.2rem]"
             >
-              {result.score} of {result.total} correct
+              {result.score} of {result.total} {marksBased ? "marks" : "correct"}
             </h2>
             <p className="mt-1 text-[0.92rem] text-muted-foreground">
               {result.percent}% overall
@@ -233,12 +241,13 @@ export function ExamResults({
               </ul>
             ) : (
               <p className="mt-2 text-[0.76rem] leading-relaxed text-muted-foreground">
-                Every topic is at 100%. Browse the course for a fresh
-                perspective or sit another paper.
+                {result.topics.every((topic) => topic.percent === 100)
+                  ? "Every topic is at 100%. Browse the course for a fresh perspective or sit another paper."
+                  : "Course lessons for this paper are on the way. Re-read the scenario notes and the topic breakdown above between attempts."}
               </p>
             )}
             <Link
-              href="/learning/prince2-foundation"
+              href={`/learning/${courseSlug}`}
               className={cn(
                 buttonVariants({ variant: "outline", size: "cta" }),
                 "mt-3 w-full",
@@ -306,8 +315,11 @@ export function ExamResults({
             </h2>
           </div>
           <p className="text-[0.64rem] text-muted-foreground">
-            {result.score} correct · {result.incorrect} incorrect ·{" "}
-            {result.unanswered} unanswered
+            {marksBased
+              ? `${result.score} of ${result.total} marks`
+              : `${result.score} correct`}
+            {" · "}
+            {result.incorrect} incorrect · {result.unanswered} unanswered
           </p>
         </div>
 
@@ -315,8 +327,26 @@ export function ExamResults({
           {questions.map((question, questionIndex) => {
             const response = responseById.get(question.id);
             const answer = review[question.id];
+            const isMatch = question.kind === "match";
             const selected = response?.selectedOptionIds[0];
-            const correct = selected !== undefined && selected === answer?.correctOptionId;
+            const correct = isMatch
+              ? Boolean(answer?.isCorrect)
+              : selected !== undefined && selected === answer?.correctOptionId;
+            const answered = isMatch
+              ? Object.keys(response?.selectedByStem ?? {}).length > 0
+              : selected !== undefined;
+            const letterFor = (optionId?: string | null) => {
+              if (!optionId) return null;
+              const index = question.options.findIndex(
+                (option) => option.id === optionId,
+              );
+              return index === -1
+                ? null
+                : {
+                    letter: String.fromCharCode(65 + index),
+                    label: question.options[index]?.label ?? "",
+                  };
+            };
 
             return (
               <details
@@ -351,7 +381,7 @@ export function ExamResults({
                           Flagged
                         </span>
                       ) : null}
-                      {selected ? null : (
+                      {answered ? null : (
                         <span className="text-destructive">Not answered</span>
                       )}
                     </span>
@@ -359,7 +389,46 @@ export function ExamResults({
                 </summary>
 
                 <div className="mt-3 space-y-1.5 pl-7">
-                  {question.options.map((option, optionIndex) => {
+                  {isMatch ? (
+                    (answer?.stems ?? []).map((stem, stemIndex) => {
+                      const chosen = letterFor(stem.selectedOptionId);
+                      const right = letterFor(stem.correctOptionId);
+                      const stemCorrect =
+                        stem.selectedOptionId !== undefined &&
+                        stem.selectedOptionId === stem.correctOptionId;
+                      return (
+                        <p
+                          key={stem.id}
+                          className="flex flex-wrap items-start gap-x-2 gap-y-1 rounded-lg px-2 py-1 text-[0.76rem] leading-relaxed"
+                        >
+                          <span className="mt-px font-semibold">
+                            {stemIndex + 1}.
+                          </span>
+                          <span className="min-w-0 flex-1 text-foreground/80">
+                            {stem.label}
+                          </span>
+                          <span
+                            className={cn(
+                              "rounded-md px-1.5 py-0.5 text-[0.7rem]",
+                              stemCorrect
+                                ? "bg-mint-soft text-navy"
+                                : "bg-destructive/5 text-destructive",
+                            )}
+                          >
+                            {chosen
+                              ? `You: ${chosen.letter}. ${chosen.label}`
+                              : "You: not answered"}
+                          </span>
+                          {stemCorrect || !right ? null : (
+                            <span className="rounded-md bg-mint-soft px-1.5 py-0.5 text-[0.7rem] text-navy">
+                              Correct: {right.letter}. {right.label}
+                            </span>
+                          )}
+                        </p>
+                      );
+                    })
+                  ) : (
+                    question.options.map((option, optionIndex) => {
                     const isCorrect = option.id === answer?.correctOptionId;
                     const isSelected = option.id === selected;
                     return (
@@ -385,7 +454,8 @@ export function ExamResults({
                         ) : null}
                       </p>
                     );
-                  })}
+                    })
+                  )}
                   {answer?.explanation ? (
                     <p className="pt-1.5 text-[0.76rem] leading-relaxed text-muted-foreground">
                       {answer.explanation}

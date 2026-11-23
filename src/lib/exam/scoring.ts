@@ -12,16 +12,36 @@ export interface ScoreExamInput {
   questions: ExamQuestion[];
   responses: StudentResponse[];
   passMarkPercent: number;
+  passMark?: number;
   durationUsedSeconds: number;
   completedAt: string;
 }
 
-function isCorrect(question: ExamQuestion, response?: StudentResponse): boolean {
-  if (!response) return false;
-  return response.selectedOptionIds.includes(question.correctOptionId);
+export function questionMarks(question: ExamQuestion): number {
+  return question.marks ?? 1;
 }
 
-export function passThreshold(total: number, passMarkPercent: number): number {
+/** Marks earned for one answer: matching items score one per correct stem. */
+export function marksAwarded(
+  question: ExamQuestion,
+  response?: StudentResponse,
+): number {
+  if (!response) return 0;
+  if (question.kind === "match") {
+    const selected = response.selectedByStem ?? {};
+    return (question.stems ?? []).filter(
+      (stem) => selected[stem.id] === stem.correctOptionId,
+    ).length;
+  }
+  return response.selectedOptionIds.includes(question.correctOptionId) ? 1 : 0;
+}
+
+export function passThreshold(
+  total: number,
+  passMarkPercent: number,
+  passMark?: number,
+): number {
+  if (passMark != null) return passMark;
   return Math.ceil((total * passMarkPercent) / 100);
 }
 
@@ -40,8 +60,9 @@ export function scoreExam(input: ScoreExamInput): ExamResult {
       selectedOptionIds: [],
       flagged: false,
     };
-    const correct = isCorrect(question, response);
-    if (correct) score += 1;
+    const marks = questionMarks(question);
+    const earned = marksAwarded(question, response);
+    score += earned;
     if (response.selectedOptionIds.length === 0) unanswered += 1;
 
     const topic =
@@ -52,17 +73,20 @@ export function scoreExam(input: ScoreExamInput): ExamResult {
         total: 0,
         percent: 0,
       };
-    topic.total += 1;
-    if (correct) topic.correct += 1;
+    topic.total += marks;
+    topic.correct += earned;
     topicTotals.set(question.topic, topic);
 
     return response;
   });
 
-  const total = input.questions.length;
+  const total = input.questions.reduce(
+    (sum, question) => sum + questionMarks(question),
+    0,
+  );
   const incorrect = total - score - unanswered;
   const percent = total ? Math.round((score / total) * 100) : 0;
-  const threshold = passThreshold(total, input.passMarkPercent);
+  const threshold = passThreshold(total, input.passMarkPercent, input.passMark);
 
   return {
     examId: input.examId,
@@ -73,6 +97,7 @@ export function scoreExam(input: ScoreExamInput): ExamResult {
     total,
     percent,
     passMarkPercent: input.passMarkPercent,
+    passMark: input.passMark,
     passed: score >= threshold,
     durationUsedSeconds: input.durationUsedSeconds,
     completedAt: input.completedAt,

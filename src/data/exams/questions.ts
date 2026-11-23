@@ -1,12 +1,15 @@
 import { foundationMockQuestions } from "./foundation-mock";
+import { practitionerMockQuestions } from "./practitioner-mock";
 import { simulatorPoolQuestions } from "./simulator-pool";
 
 /**
  * Original practice questions written for MockAcademy around the PRINCE2 7th
- * edition Foundation syllabus. They are not PeopleCert exam items.
+ * edition Foundation and Practitioner syllabuses. They are not PeopleCert
+ * exam items.
  */
 export const examQuestionBank = [
   ...foundationMockQuestions,
+  ...practitionerMockQuestions,
   ...simulatorPoolQuestions,
 ];
 

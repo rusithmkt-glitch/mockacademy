@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { connection } from "next/server";
 import { DashboardView } from "@/components/dashboard/dashboard-view";
 import { getViewer } from "@/lib/auth/session";
@@ -24,6 +24,7 @@ export default async function DashboardPage() {
     getDashboardData(viewer),
     loadCourse(),
   ]);
+  if (!course) notFound();
 
   return <DashboardView viewer={viewer} data={data} course={course} />;
 }

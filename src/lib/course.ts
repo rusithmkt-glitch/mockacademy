@@ -68,8 +68,11 @@ export function getAdjacentSessions(moduleSlug: string, sessionSlug: string) {
   };
 }
 
-export function getResumeSession(completedIds: string[]): SessionRef {
-  const refs = getAllSessionRefs();
+export function getResumeSession(
+  completedIds: string[],
+  source: Course = course,
+): SessionRef {
+  const refs = getAllSessionRefs(source);
   return (
     refs.find((ref) => !completedIds.includes(ref.session.id)) ??
     refs[0]

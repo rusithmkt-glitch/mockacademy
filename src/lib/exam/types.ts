@@ -5,6 +5,15 @@ export interface ExamOption {
   label: string;
 }
 
+/** One line of a matching question: match this stem to an option. */
+export interface ExamStem {
+  id: string;
+  label: string;
+  correctOptionId: string;
+}
+
+export type ExamQuestionKind = "single" | "match";
+
 export interface ExamQuestion {
   id: string;
   topic: ExamTopic;
@@ -13,6 +22,16 @@ export interface ExamQuestion {
   options: ExamOption[];
   correctOptionId: string;
   explanation: string;
+  kind?: ExamQuestionKind;
+  /** Marks awarded for this item; matching items award one per stem. */
+  marks?: number;
+  stems?: ExamStem[];
+}
+
+export interface ReferenceMaterial {
+  title: string;
+  body?: string;
+  rows?: { label: string; value: string }[];
 }
 
 export type QuestionSelection =
@@ -30,6 +49,10 @@ export interface ExamConfig {
   questionCount: number;
   durationMinutes: number;
   passMarkPercent: number;
+  /** Absolute pass mark in marks; takes precedence over passMarkPercent. */
+  passMark?: number;
+  /** Papers worth more than one mark per question (Practitioner). */
+  totalMarks?: number;
   selection: QuestionSelection;
   attemptPolicy: AttemptPolicy;
 }
@@ -38,6 +61,8 @@ export interface StudentResponse {
   questionId: string;
   selectedOptionIds: string[];
   flagged: boolean;
+  /** Matching items: stemId -> chosen optionId. */
+  selectedByStem?: Record<string, string>;
 }
 
 export interface TopicResult {
@@ -58,6 +83,7 @@ export interface ExamResult {
   total: number;
   percent: number;
   passMarkPercent: number;
+  passMark?: number;
   passed: boolean;
   durationUsedSeconds: number;
   completedAt: string;

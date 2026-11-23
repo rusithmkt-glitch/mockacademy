@@ -1,6 +1,6 @@
-import { createBank } from "./build";
+import { createBank, examTopicModules } from "./build";
 
-const { mc, two, questions } = createBank("fm");
+const { mc, two, questions } = createBank("fm", examTopicModules);
 
 // Foundations (4)
 mc(

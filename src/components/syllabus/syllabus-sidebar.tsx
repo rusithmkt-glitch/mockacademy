@@ -42,14 +42,14 @@ function SyllabusContents({
       <div className="border-b border-border px-5 py-4">
         <div className="flex items-center justify-between gap-3">
           <p className="text-[0.6rem] font-semibold uppercase tracking-[0.16em] text-primary">
-            PRINCE2® Foundation
+            {syllabus.title}
           </p>
           <span className="rounded-full bg-accent px-2 py-0.5 text-[0.6rem] font-semibold text-accent-foreground">
             Free
           </span>
         </div>
         <Link
-          href="/learning/prince2-foundation"
+          href={`/learning/${syllabus.slug}`}
           onClick={onNavigate}
           className="group mt-2 inline-flex items-center gap-1.5 text-[0.7rem] font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
@@ -131,7 +131,7 @@ function SyllabusContents({
                   return (
                     <li key={session.id}>
                       <Link
-                        href={`/learning/prince2-foundation/${module.slug}/${session.slug}`}
+                        href={`/learning/${syllabus.slug}/${module.slug}/${session.slug}`}
                         onClick={onNavigate}
                         aria-current={isCurrent ? "page" : undefined}
                         className={cn(

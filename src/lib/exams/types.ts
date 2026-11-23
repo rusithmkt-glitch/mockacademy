@@ -11,9 +11,14 @@ export interface ExamSummary {
   title: string;
   description: string;
   difficulty: ExamDifficultyLabel;
+  certification: string;
+  level: string;
   questionCount: number;
+  totalMarks: number;
   durationMinutes: number;
   passPercent: number;
+  passMark: number | null;
+  isOpenBook: boolean;
   selectionMode: "fixed" | "random";
   maxAttempts: number;
   feedbackAttempts: number;
@@ -27,13 +32,30 @@ export interface ExamOptionView {
   label: string;
 }
 
+export interface ExamStemView {
+  id: string;
+  label: string;
+}
+
+export type ExamQuestionKindView = "single" | "match";
+
+export interface DbReferenceMaterial {
+  title: string;
+  body?: string;
+  rows?: { label: string; value: string }[];
+}
+
 export interface AttemptQuestionView {
   id: string;
   position: number;
   prompt: string;
   topic: string;
+  kind: ExamQuestionKindView;
+  marks: number;
+  stems: ExamStemView[];
   options: ExamOptionView[];
   selectedOptionIds: string[];
+  selectedByStem: Record<string, string>;
   flagged: boolean;
 }
 
@@ -43,7 +65,13 @@ export interface AttemptMeta {
   examSlug: string;
   examTitle: string;
   difficulty: string;
+  certification: string;
+  level: string;
   passPercent: number;
+  /** Absolute pass mark in marks (Practitioner); null falls back to percent. */
+  passMark: number | null;
+  totalMarks: number;
+  referenceMaterials: DbReferenceMaterial[];
   mode: DbExamMode;
   attemptNumber: number;
   maxAttempts: number;
@@ -68,9 +96,14 @@ export interface ReviewQuestionView {
   position: number;
   prompt: string;
   topic: string;
+  kind: ExamQuestionKindView;
+  marks: number;
+  stems: (ExamStemView & { correctOptionId?: string })[];
   options: ExamOptionView[];
   selectedOptionIds: string[];
+  selectedByStem: Record<string, string>;
   correctOptionIds: string[];
+  correctByStem: Record<string, string>;
   explanation: string;
   isCorrect: boolean;
 }
@@ -80,8 +113,12 @@ export interface SubmittedQuestionView {
   position: number;
   prompt: string;
   topic: string;
+  kind: ExamQuestionKindView;
+  marks: number;
+  stems: ExamStemView[];
   options: ExamOptionView[];
   selectedOptionIds: string[];
+  selectedByStem: Record<string, string>;
   flagged: boolean;
 }
 
@@ -94,6 +131,7 @@ export interface SubmittedAttemptPayload {
     percent: number;
     passed: boolean;
     passPercent: number;
+    passMark: number | null;
     mode: DbExamMode;
     reviewAvailable: boolean;
     topicBreakdown: Record<string, { score: number; total: number }>;

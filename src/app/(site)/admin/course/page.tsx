@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import {
   ArrowUpRight,
@@ -23,6 +24,7 @@ export default async function AdminCoursePage() {
     loadCourse(),
     isSanityConfigured() ? getPublishedCourse(DEFAULT_COURSE_SLUG) : null,
   ]);
+  if (!course) notFound();
   const stats = getCourseStats(course);
   const usingCms = Boolean(published && published.modules.length > 0);
 
@@ -154,7 +156,7 @@ export default async function AdminCoursePage() {
                 </p>
               </div>
               <Link
-                href={`/learning/prince2-foundation/${module.slug}/${module.sessions[0]?.slug ?? ""}`}
+                href={`/learning/${course.slug}/${module.slug}/${module.sessions[0]?.slug ?? ""}`}
                 className="text-[0.7rem] font-semibold text-primary hover:underline"
               >
                 Preview

@@ -13,9 +13,25 @@ const brand = {
   amber: "#FCEFC7",
 };
 
-const examTitles: Record<string, string> = {
-  mock: "Foundation Mock Exam",
-  simulator: "Foundation Exam Simulator",
+const examStyles: Record<
+  string,
+  { title: string; edition: string; passText: string }
+> = {
+  mock: {
+    title: "Foundation Mock Exam",
+    edition: "PRINCE2® 7TH EDITION FOUNDATION",
+    passText: "60% pass mark",
+  },
+  simulator: {
+    title: "Foundation Exam Simulator",
+    edition: "PRINCE2® 7TH EDITION FOUNDATION",
+    passText: "60% pass mark",
+  },
+  practitioner: {
+    title: "Practitioner Mock Exam",
+    edition: "PRINCE2® 7TH EDITION PRACTITIONER",
+    passText: "38-mark pass mark",
+  },
 };
 
 async function loadFont(weight: 400 | 600 | 800) {
@@ -35,7 +51,8 @@ export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
   const percent = Math.min(100, Math.max(0, Number(params.get("percent")) || 0));
   const passed = params.get("passed") === "1";
-  const examTitle = examTitles[params.get("exam") ?? ""] ?? examTitles.simulator;
+  const style =
+    examStyles[params.get("exam") ?? ""] ?? examStyles.simulator;
   const name = (params.get("name") ?? "").trim().slice(0, 40);
 
   const [regular, semibold, extrabold] = await Promise.all([
@@ -149,7 +166,7 @@ export async function GET(request: Request) {
               color: brand.plum,
             }}
           >
-            PRINCE2® 7TH EDITION FOUNDATION
+            {style.edition}
           </div>
           <div
             style={{
@@ -160,7 +177,7 @@ export async function GET(request: Request) {
               color: brand.navy,
             }}
           >
-            {examTitle}
+            {style.title}
           </div>
           {name ? (
             <div
@@ -180,7 +197,9 @@ export async function GET(request: Request) {
               {percent}%
             </span>
             <span style={{ fontSize: 30, fontWeight: 600, color: brand.plum, marginLeft: 20 }}>
-              {passed ? "above the 60% pass mark" : "on the way to the 60% pass mark"}
+              {passed
+                ? `above the ${style.passText}`
+                : `on the way to the ${style.passText}`}
             </span>
           </div>
         </div>

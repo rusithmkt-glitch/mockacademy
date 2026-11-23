@@ -82,6 +82,7 @@ export async function saveExamResponseAction(input: {
   questionId: string;
   selectedOptionIds: string[];
   flagged: boolean;
+  selectedByStem?: Record<string, string>;
 }): Promise<ActionResult<{ status: "saved" | "expired" }>> {
   if (!isSupabaseConfigured()) {
     return { ok: false, error: "Exams are not connected to the backend yet." };
@@ -100,6 +101,17 @@ export async function saveExamResponseAction(input: {
     ? input.selectedOptionIds.filter((id) => typeof id === "string").slice(0, 10)
     : [];
 
+  const byStem: Record<string, string> = {};
+  for (const [stemId, optionId] of Object.entries(input.selectedByStem ?? {})) {
+    if (
+      typeof stemId === "string" &&
+      typeof optionId === "string" &&
+      Object.keys(byStem).length < 6
+    ) {
+      byStem[stemId] = optionId;
+    }
+  }
+
   try {
     const supabase = await createSupabaseServerClient();
     const { data, error } = await supabase.rpc("save_exam_response", {
@@ -107,6 +119,7 @@ export async function saveExamResponseAction(input: {
       p_question_id: input.questionId,
       p_selected_option_ids: selected,
       p_flagged: Boolean(input.flagged),
+      p_selected_by_stem: byStem,
     });
     if (error || !data) {
       return { ok: false, error: mapExamError(error?.message) };

@@ -135,6 +135,9 @@ export default async function MockExamPage({
               <span className="inline-flex items-center gap-1.5">
                 <FileText className="size-3.5 text-plum" aria-hidden="true" />
                 {exam.questionCount} questions
+                {exam.totalMarks !== exam.questionCount
+                  ? ` · ${exam.totalMarks} marks`
+                  : ""}
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <Clock3 className="size-3.5 text-plum" aria-hidden="true" />
@@ -142,9 +145,11 @@ export default async function MockExamPage({
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <Target className="size-3.5 text-plum" aria-hidden="true" />
-                {exam.passPercent}% pass mark
+                {exam.passMark
+                  ? `${exam.passMark} of ${exam.totalMarks} marks to pass`
+                  : `${exam.passPercent}% pass mark`}
               </span>
-              <span>Closed book</span>
+              <span>{exam.isOpenBook ? "Open book" : "Closed book"}</span>
             </div>
 
             <ExamRunner

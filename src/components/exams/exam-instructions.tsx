@@ -20,7 +20,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 function facts(exam: ExamSummary) {
-  return [
+  const items = [
     {
       icon: FileText,
       label: "Questions",
@@ -34,14 +34,24 @@ function facts(exam: ExamSummary) {
     {
       icon: Target,
       label: "Pass mark",
-      value: `${exam.passPercent}%`,
+      value: exam.passMark
+        ? `${exam.passMark} of ${exam.totalMarks ?? exam.questionCount} marks`
+        : `${exam.passPercent}%`,
     },
     {
       icon: Award,
       label: "Format",
-      value: "Closed book",
+      value: exam.isOpenBook ? "Open book" : "Closed book",
     },
   ];
+  if (exam.totalMarks && exam.totalMarks !== exam.questionCount) {
+    items.splice(1, 0, {
+      icon: Target,
+      label: "Total marks",
+      value: String(exam.totalMarks),
+    });
+  }
+  return items;
 }
 
 export function ExamInstructions({
@@ -243,6 +253,13 @@ export function ExamInstructions({
               Keep an eye on the timer, but do not rush the first half of the
               paper.
             </li>
+            {exam.isOpenBook ? (
+              <li className="text-[0.78rem] leading-relaxed text-foreground/75">
+                Open book means knowing where things are. Use the scenario
+                documents and your manual to support each answer, and keep
+                cross-referencing between them.
+              </li>
+            ) : null}
           </ul>
         </div>
         <div className="rounded-2xl border border-amber/50 bg-amber-soft p-4">
