@@ -17,6 +17,10 @@ export function ScenarioPanel({
   onClose: () => void;
 }) {
   const closeRef = useRef<HTMLButtonElement>(null);
+  const isPassages = materials.some((material) =>
+    material.title.startsWith("Passage"),
+  );
+  const panelLabel = isPassages ? "Reading passages" : "Scenario information";
 
   useEffect(() => {
     closeRef.current?.focus();
@@ -31,7 +35,7 @@ export function ScenarioPanel({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Scenario information"
+      aria-label={panelLabel}
       className="fixed inset-0 z-50 flex items-end justify-center bg-navy/45 p-3 backdrop-blur-sm sm:items-center sm:p-6"
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
@@ -41,7 +45,7 @@ export function ScenarioPanel({
         <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3.5">
           <p className="flex items-center gap-2 font-heading text-[1rem] text-foreground">
             <FileText className="size-4 text-primary" aria-hidden="true" />
-            Scenario information
+            {panelLabel}
           </p>
           <Button
             ref={closeRef}
@@ -49,7 +53,7 @@ export function ScenarioPanel({
             variant="ghost"
             size="sm"
             onClick={onClose}
-            aria-label="Close scenario information"
+            aria-label={`Close ${panelLabel.toLowerCase()}`}
           >
             <X className="size-4" aria-hidden="true" />
           </Button>
@@ -96,8 +100,9 @@ export function ScenarioPanel({
         </div>
         <div className="border-t border-border px-5 py-3">
           <p className="text-[0.64rem] leading-relaxed text-muted-foreground">
-            Original practice scenario. The real exam supplies its own project
-            scenario and additional information documents.
+            {isPassages
+              ? "Original practice passages written for MockAcademy. The real exam supplies its own reading texts."
+              : "Original practice scenario. The real exam supplies its own project scenario and additional information documents."}
           </p>
         </div>
       </div>

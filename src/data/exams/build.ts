@@ -92,6 +92,28 @@ export function createBank<Topic extends string>(
     push(topic, prompt, labels, position, explanation);
   }
 
+  /**
+   * Single answer with any number of options — IELTS True/False/Not Given
+   * items use three, standard multiple choice uses four. The answer position
+   * is balanced across the available slots.
+   */
+  function choice(
+    topic: Topic,
+    prompt: string,
+    answer: string,
+    distractors: string[],
+    explanation: string,
+  ) {
+    const pool = shuffle(
+      Array.from({ length: distractors.length + 1 }, (_, index) => index),
+      random,
+    );
+    const position = pool[0];
+    const labels = [...distractors];
+    labels.splice(position, 0, answer);
+    push(topic, prompt, labels, position, explanation);
+  }
+
   /** "Which two statements…" item; statements render as a numbered list. */
   function two(
     topic: Topic,
@@ -123,17 +145,34 @@ export function createBank<Topic extends string>(
   /**
    * Matching item worth one mark per stem: each situation takes one answer
    * from the shared option list, exactly like the real Practitioner paper.
+   * IELTS adds two extra distractors per stem count, so the option list may
+   * run from stems+2 to stems+4 long.
    */
   function match(
     topic: Topic,
     lead: string,
-    stems: [string, string, string],
+    stems: string[],
     options: string[],
-    answers: [number, number, number],
+    answers: number[],
     explanation: string,
   ) {
-    if (options.length < 5 || options.length > 6) {
-      throw new Error(`${prefix}: matching items need 5 or 6 shared options`);
+    if (stems.length < 2 || stems.length > 6) {
+      throw new Error(`${prefix}: matching items need 2 to 6 stems`);
+    }
+    if (
+      options.length < stems.length + 2 ||
+      options.length > stems.length + 4
+    ) {
+      throw new Error(
+        `${prefix}: matching items need two to four more options than stems`,
+      );
+    }
+    if (
+      answers.length !== stems.length ||
+      new Set(answers).size !== answers.length ||
+      answers.some((index) => index < 0 || index >= options.length)
+    ) {
+      throw new Error(`${prefix}: matching answers must cover each stem once`);
     }
     const order = shuffle(
       options.map((_, index) => index),
@@ -163,5 +202,5 @@ export function createBank<Topic extends string>(
     });
   }
 
-  return { mc, two, match, questions };
+  return { mc, choice, two, match, questions };
 }

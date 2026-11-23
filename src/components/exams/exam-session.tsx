@@ -129,7 +129,11 @@ export function ExamSession({
                 onClick={() => setScenarioOpen(true)}
               >
                 <FileText className="size-3.5" aria-hidden="true" />
-                Scenario
+                {referenceMaterials.some((material) =>
+                  material.title.startsWith("Passage"),
+                )
+                  ? "Passages"
+                  : "Scenario"}
               </Button>
             ) : null}
             <span

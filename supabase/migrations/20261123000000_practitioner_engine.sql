@@ -608,8 +608,8 @@ begin
     where aq.attempt_id = v_attempt.id
   )
   select
-    coalesce(sum(pq.correct_marks), 0),
-    coalesce(sum(pq.total_marks), 0),
+    coalesce(sum(per_topic.correct_marks), 0),
+    coalesce(sum(per_topic.total_marks), 0),
     coalesce(jsonb_object_agg(
       per_topic.topic,
       jsonb_build_object('score', per_topic.correct_marks, 'total', per_topic.total_marks)

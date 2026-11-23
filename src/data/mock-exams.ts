@@ -2,9 +2,11 @@ import type { ExamSet } from "./types";
 import {
   EXAM_SIMULATOR_ID,
   FOUNDATION_MOCK_ID,
+  IELTS_READING_MOCK_ID,
   PRACTITIONER_MOCK_ID,
 } from "./exams/config";
 import { practitionerReferenceMaterials } from "./exams/practitioner-scenario";
+import { ieltsReadingPassages } from "./exams/ielts-reading-passages";
 
 const elements = ["Principles", "People", "Practices", "Processes", "Project context"];
 
@@ -64,6 +66,31 @@ export const examSets: ExamSet[] = [
     feedbackAttempts: 10,
     certification: "PRINCE2",
     level: "foundation",
+  },
+  {
+    id: IELTS_READING_MOCK_ID,
+    slug: "ielts-academic-reading-mock",
+    title: "IELTS Academic Reading Mock Test",
+    description:
+      "40 marks in the hour against three original academic passages: multiple choice, fact and claim questions, and matching sets, with the passages open beside you as on the real paper. 23 marks is roughly a band 6.0.",
+    questionCount: 28,
+    durationMinutes: 60,
+    format: "Multiple choice & matching · open book",
+    difficulty: "Full simulation",
+    topics: [
+      "Information & detail",
+      "Writer's claims",
+      "Text organisation",
+    ],
+    free: true,
+    maxAttempts: 3,
+    feedbackAttempts: 2,
+    certification: "IELTS",
+    level: "academic",
+    totalMarks: 40,
+    passMark: 23,
+    isOpenBook: true,
+    referenceMaterials: ieltsReadingPassages,
   },
 ];
 

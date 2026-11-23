@@ -188,9 +188,15 @@ export function ExamLibrary({ exams }: { exams: ExamSummary[] }) {
               <p className="text-[0.72rem] text-muted-foreground">
                 {section.exams.length} free
                 {section.exams.length === 1 ? " paper" : " papers"} ·{" "}
-                {section.exams[0]?.level === "practitioner"
-                  ? "open book, weighted marks"
-                  : "closed book, one mark each"}
+                {(() => {
+                  const first = section.exams[0];
+                  const binding = first?.isOpenBook ? "open book" : "closed book";
+                  const marks =
+                    first && first.totalMarks !== first.questionCount
+                      ? "weighted marks"
+                      : "one mark each";
+                  return `${binding}, ${marks}`;
+                })()}
               </p>
             </div>
           ) : null}

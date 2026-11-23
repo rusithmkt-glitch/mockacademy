@@ -21,9 +21,9 @@ import { isSupabaseConfigured } from "@/lib/env";
 import { listPublishedExams } from "@/lib/exams/queries";
 
 export const metadata: Metadata = {
-  title: "Free PRINCE2 Foundation and Practitioner mock exams",
+  title: "Free PRINCE2 and IELTS mock exams",
   description:
-    "Free PRINCE2 7th edition mock exams: a fixed 60-question Foundation paper, a random Foundation simulator, and an open-book Practitioner paper with a project scenario worth 68 marks.",
+    "Free mock exams: a fixed 60-question PRINCE2 Foundation paper, a random simulator, an open-book Practitioner paper worth 68 marks, and an IELTS Academic Reading test with three original passages.",
 };
 
 export const instant = false;
@@ -58,6 +58,9 @@ const tips = [
 export default async function MockExamsPage() {
   const configured = isSupabaseConfigured();
   const exams = configured ? await listPublishedExams() : [];
+  const certifications = exams.length
+    ? [...new Set(exams.map((exam) => exam.certification))]
+    : ["PRINCE2"];
 
   return (
     <>
@@ -103,7 +106,7 @@ export default async function MockExamsPage() {
                       ? `${exams.length} ${exams.length === 1 ? "paper" : "papers"}. One clear goal: exam readiness.`
                       : "Free mock papers. One clear goal: exam readiness."
                 }
-                description="A fixed Foundation mock to measure your progress, a random simulator that feels like exam day, and an open-book Practitioner paper built around a project scenario. All free, all built around the PRINCE2 7th edition syllabus."
+                description="A fixed Foundation mock to measure your progress, a random simulator that feels like exam day, an open-book Practitioner paper built around a project scenario, and an Academic Reading test built from three original passages. All free, all built from original questions."
               >
                 <div className="mt-6 flex flex-wrap justify-center gap-2">
                   <Badge tone="lavender">
@@ -111,7 +114,13 @@ export default async function MockExamsPage() {
                     All papers free
                   </Badge>
                   <Badge tone="outline">No card required</Badge>
-                  <Badge tone="outline">PRINCE2 7th edition</Badge>
+                  {certifications.map((certification) => (
+                    <Badge key={certification} tone="outline">
+                      {certification === "PRINCE2"
+                        ? "PRINCE2 7th edition"
+                        : certification}
+                    </Badge>
+                  ))}
                 </div>
               </CatalogueIntro>
             </div>

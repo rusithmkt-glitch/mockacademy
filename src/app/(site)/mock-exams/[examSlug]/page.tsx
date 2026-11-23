@@ -121,7 +121,11 @@ export default async function MockExamPage({
             <div className="mt-6 flex flex-wrap items-center gap-2">
               <Badge tone="lavender">{exam.difficulty}</Badge>
               {exam.isFeatured ? <Badge tone="navy">Start here</Badge> : null}
-              <Badge tone="outline">PRINCE2 7th edition</Badge>
+              <Badge tone="outline">
+                {exam.certification === "PRINCE2"
+                  ? "PRINCE2 7th edition"
+                  : exam.certification}
+              </Badge>
             </div>
 
             <h1 className="display mt-4 text-balance text-3xl leading-[1.12] text-foreground sm:text-4xl lg:text-[2.75rem]">

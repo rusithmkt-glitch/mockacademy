@@ -3,10 +3,12 @@ import { examTopicModules } from "./build";
 import { foundationMockQuestions } from "./foundation-mock";
 import { practitionerMockQuestions } from "./practitioner-mock";
 import { simulatorPoolQuestions } from "./simulator-pool";
+import { ieltsReadingMockQuestions } from "./ielts-reading-mock";
 
 export const FOUNDATION_MOCK_ID = "foundation-mock";
 export const PRACTITIONER_MOCK_ID = "practitioner-mock";
 export const EXAM_SIMULATOR_ID = "exam-simulator";
+export const IELTS_READING_MOCK_ID = "ielts-reading-mock";
 
 export const examConfigs: Record<string, ExamConfig> = {
   [FOUNDATION_MOCK_ID]: {
@@ -43,6 +45,19 @@ export const examConfigs: Record<string, ExamConfig> = {
       poolQuestionIds: simulatorPoolQuestions.map((question) => question.id),
     },
     attemptPolicy: { formalFromAttempt: 11, scope: "per-exam" },
+  },
+  [IELTS_READING_MOCK_ID]: {
+    examId: IELTS_READING_MOCK_ID,
+    questionCount: 28,
+    durationMinutes: 60,
+    passMarkPercent: 58,
+    passMark: 23,
+    totalMarks: 40,
+    selection: {
+      mode: "fixed",
+      questionIds: ieltsReadingMockQuestions.map((question) => question.id),
+    },
+    attemptPolicy: { formalFromAttempt: 3, scope: "per-exam" },
   },
 };
 
