@@ -13,6 +13,7 @@ function LinkedInMark({ className }: { className?: string }) {
 }
 
 function cardExamKey(examSlug: string) {
+  if (examSlug.includes("ielts")) return "ielts";
   if (examSlug.includes("practitioner")) return "practitioner";
   return examSlug.includes("simulator") ? "simulator" : "mock";
 }
@@ -44,7 +45,9 @@ export function ScoreShare({
   const [note, setNote] = useState<string | null>(null);
   const src = cardPath(examSlug, percent, passed, participantName);
   const examUrl = `https://www.mockacademy.org/mock-exams/${examSlug}`;
-  const level = examSlug.includes("practitioner") ? "Practitioner" : "Foundation";
+  const level = examSlug.includes("ielts")
+    ? "IELTS Academic Reading"
+    : `PRINCE2 ${examSlug.includes("practitioner") ? "Practitioner" : "Foundation"}`;
 
   async function downloadCard() {
     const response = await fetch(src);
@@ -65,8 +68,8 @@ export function ScoreShare({
       const blob = await downloadCard();
       const file = new File([blob], "mockacademy-result.png", { type: "image/png" });
       const text = passed
-        ? `I scored ${percent}% on the free ${examTitle} at MockAcademy — above the PRINCE2 ${level} pass mark. Sit it yourself:`
-        : `Prepping for PRINCE2 ${level} with the free ${examTitle} at MockAcademy — ${percent}% this time, improving every attempt. Sit it yourself:`;
+        ? `I scored ${percent}% on the free ${examTitle} at MockAcademy — above the ${level} pass mark. Sit it yourself:`
+        : `Prepping for ${level} with the free ${examTitle} at MockAcademy — ${percent}% this time, improving every attempt. Sit it yourself:`;
       if (navigator.canShare?.({ files: [file] })) {
         await navigator.share({ files: [file], text, url: examUrl });
       } else {
@@ -132,10 +135,10 @@ export function ScoreShare({
       <img
         src={src}
         alt={`Shareable score card showing ${percent}% on the ${examTitle}`}
-        width={1200}
-        height={630}
+        width={2160}
+        height={2700}
         loading="lazy"
-        className="mt-4 w-full rounded-2xl border border-border/70"
+        className="mx-auto mt-4 block w-full max-w-sm rounded-2xl border border-border/70 shadow-soft"
       />
     </section>
   );
