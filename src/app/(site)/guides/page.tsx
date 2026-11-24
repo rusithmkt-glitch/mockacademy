@@ -7,9 +7,9 @@ import { CatalogueIntro } from "@/components/catalogue/catalogue-intro";
 import { guides } from "@/data/guides";
 
 export const metadata: Metadata = {
-  title: "PRINCE2 Foundation guides",
+  title: "PRINCE2 Foundation and Practitioner guides",
   description:
-    "Plain-English guides to PRINCE2 7th edition Foundation: exam format and pass mark, the seven principles, a four-week study plan and free mock exams.",
+    "Plain-English guides to PRINCE2 7th edition Foundation and Practitioner: exam format and pass mark, the seven principles, a four-week study plan and free mock exams.",
   alternates: { canonical: "/guides" },
 };
 
@@ -42,8 +42,8 @@ export default function GuidesPage() {
               <CatalogueIntro
                 headingLevel="h1"
                 pill="Plain-English guides"
-                title="PRINCE2 Foundation, without the waffle."
-                description="Short, practical guides to the exam and the method — written around the PRINCE2 7th edition syllabus, with free mock exams and lessons behind every one."
+                title="PRINCE2 Foundation and Practitioner, without the waffle."
+                description="Short, practical guides to both exams and the method — written around the PRINCE2 7th edition syllabus, with free mock exams and lessons behind every one."
               />
             </div>
 
@@ -79,13 +79,17 @@ export default function GuidesPage() {
                 Prefer learning by doing?
               </p>
               <p className="mx-auto mt-1 max-w-lg text-[0.78rem] leading-relaxed text-muted-foreground">
-                The full course is free: 13 modules, 66 illustrated sessions and
-                two exam-condition mock papers.
+                The full course is free: the 13-module Foundation course, the
+                scenario-based Practitioner course, and mock papers that match
+                each exam's format.
               </p>
               <div className="mt-3 flex flex-wrap justify-center gap-2 text-[0.75rem] font-semibold">
                 <Link href="/learning/prince2-foundation" className="inline-flex items-center gap-1.5 rounded-full bg-navy px-4 py-2 text-white transition-transform hover:-translate-y-0.5">
                   <BookOpen className="size-3.5" aria-hidden="true" />
                   Start the course
+                </Link>
+                <Link href="/learning/prince2-practitioner" className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2 text-foreground transition-transform hover:-translate-y-0.5">
+                  Practitioner course
                 </Link>
                 <Link href="/mock-exams" className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2 text-foreground transition-transform hover:-translate-y-0.5">
                   Sit a mock exam
