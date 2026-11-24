@@ -15,7 +15,11 @@ export async function GET() {
     .select("id", { count: "exact", head: true });
 
   if (error) {
-    return NextResponse.json({ status: "db-unreachable" }, { status: 500 });
+    console.error("health: exam_sets check failed", error.code, error.message);
+    return NextResponse.json(
+      { status: "db-unreachable", code: error.code ?? "unknown" },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json({ status: "ok" });
