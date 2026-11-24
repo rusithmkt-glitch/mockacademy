@@ -7,6 +7,7 @@ const columns = [
     title: "Learn",
     links: [
       { href: "/mock-exams", label: "Mock exams" },
+      { href: "/guides", label: "Guides" },
       { href: "/learning", label: "Learning overview" },
       { href: "/learning/prince2-foundation", label: "PRINCE2 Foundation course" },
       {
