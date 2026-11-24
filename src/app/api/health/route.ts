@@ -17,7 +17,11 @@ export async function GET() {
   if (error) {
     console.error("health: exam_sets check failed", error.code, error.message);
     return NextResponse.json(
-      { status: "db-unreachable", code: error.code ?? "unknown" },
+      {
+        status: "db-unreachable",
+        code: error.code ?? "unknown",
+        reason: (error.message ?? "no message").slice(0, 160),
+      },
       { status: 500 },
     );
   }
