@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/admin", "/dashboard", "/studio", "/api/"],
+      disallow: ["/admin", "/dashboard", "/studio", "/api/", "/login?", "/register?"],
     },
     sitemap: "https://www.mockacademy.org/sitemap.xml",
   };

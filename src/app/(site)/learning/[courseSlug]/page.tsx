@@ -52,6 +52,7 @@ export async function generateMetadata({
   return {
     title: `${course.shortTitle} course`,
     description: `The complete free ${course.shortTitle} course: ${course.modules.length} modules of illustrated sessions, knowledge checks and the full ${course.level} syllabus.`,
+    alternates: { canonical: `/learning/${course.slug}` },
   };
 }
 

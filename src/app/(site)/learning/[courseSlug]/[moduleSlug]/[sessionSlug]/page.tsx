@@ -41,6 +41,9 @@ export async function generateMetadata({
   return {
     title: `${session.title} · ${courseModule.shortTitle}`,
     description: session.summary,
+    alternates: {
+      canonical: `/learning/${courseSlug}/${moduleSlug}/${sessionSlug}`,
+    },
   };
 }
 

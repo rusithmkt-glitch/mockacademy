@@ -36,5 +36,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly" as const,
       priority: 0.7,
     })),
+    ...Object.values(courses).flatMap((entry) =>
+      entry.course.modules.flatMap((courseModule) =>
+        courseModule.sessions.map((session) => ({
+          url: `${base}/learning/${entry.course.slug}/${courseModule.slug}/${session.slug}`,
+          lastModified: now,
+          changeFrequency: "monthly" as const,
+          priority: 0.6,
+        })),
+      ),
+    ),
   ];
 }

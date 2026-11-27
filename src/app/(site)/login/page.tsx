@@ -12,6 +12,7 @@ export const metadata: Metadata = {
   title: "Log in",
   description:
     "Sign in to MockAcademy to continue your PRINCE2 Foundation lessons and mock exams.",
+  alternates: { canonical: "/login" },
 };
 
 export const instant = false;

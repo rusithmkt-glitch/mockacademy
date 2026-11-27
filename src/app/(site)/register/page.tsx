@@ -12,6 +12,7 @@ export const metadata: Metadata = {
   title: "Create an account",
   description:
     "Create a free MockAcademy account to study PRINCE2 Foundation lessons and sit mock exams.",
+  alternates: { canonical: "/register" },
 };
 
 export default function RegisterPage() {
